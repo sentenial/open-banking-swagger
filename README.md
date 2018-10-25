@@ -11,4 +11,3 @@ Our API specification is available at the following link. [Click here for the AP
 The swagger codegen project, allows generation of API client libraries (SDK generation), server stubs and documentation automatically given an OpenAPI Spec. 
 
 It is possible to generate client library code automatically in your language of choice using [https://github.com/swagger-api/swagger-codegen](https://github.com/swagger-api/swagger-codegen). 
-
