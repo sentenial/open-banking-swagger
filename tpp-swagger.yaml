@@ -323,9 +323,6 @@ paths:
             x-tpp-interaction-id:
               type: string
               description: Correlation id passed through conversation via all the actors involved.
-          examples:
-            application/json:          
-              returnCode: "204"
         '400':
           description: Bad Request
           schema:
@@ -664,26 +661,18 @@ paths:
           description: A unique identifier used to identify the account resource.
           required: true
           type: string
-        - name: fromBookingTime
-          in: query
-          required: false
-          type: string
-          format: date-time
         - name: frombookingdatetime
           in: query
-          description: 'The UTC ISO 8601 Date Time to filter transactions FROM  NB Time component is optional - set to 00:00:00 for just Date.   The parameter must NOT have a timezone set'
           required: false
           type: string
-        - name: toBookingTime
+          format: date-time
+          description: 'The UTC ISO 8601 Date Time to filter transactions FROM  NB Time component is optional - set to 00:00:00 for just Date. The parameter must NOT have a timezone set'
+        - name: tobookingdatetime
           in: query
           required: false
           type: string
           format: date-time
-        - name: tobookingdatetime
-          in: query
-          description: 'The UTC ISO 8601 Date Time to filter transactions TO  NB Time component is optional - set to 00:00:00 for just Date.   The parameter must NOT have a timezone set'
-          required: false
-          type: string
+          description: 'The UTC ISO 8601 Date Time to filter transactions TO  NB Time component is optional - set to 00:00:00 for just Date. The parameter must NOT have a timezone set'
         - name: x-tpp-account-request-reference
           in: header
           description: The account request reference that was associated with the account intent request.
@@ -1096,25 +1085,126 @@ paths:
     post:
       tags:
         - PISP Service
-      summary: Reverse Payment
-      description: Reverse Payment
+      summary: Reverse a Payment POST endpoint
+      description: Reverse a Payment POST endpoint
       operationId: reversePaymentUsingPOST
       produces:
         - application/json
       parameters:
         - name: paymentId
           in: path
-          description: The ID of the payment for which you want to retrieve details
+          description: The ID of the payment to be reversed.
           required: true
           type: string
+        - name: reversePaymentRequest
+          in: body
+          description: Reverse a payment
+          required: true
+          schema: 
+            $ref: '#/definitions/ReversePaymentRequest'
       responses:
-        '501':
-          description: Not Implemented
+        '200':
+          description: Payment successfully reversed
+          schema:
+            $ref: '#/definitions/ReversePaymentResponseEnvelope'
+        '400':
+          description: "Bad Request"
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null               
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null                
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null                
+        '404':
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null               
+        '405':
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null              
+        '406':
+          description: "Not Acceptable"
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null               
+        '415':
+          description: "Unsupported Media Type"
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null
+        '422':
+          description: "Unprocessable Entity"
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null               
+        '429':
+          description: Too Many Requests
+          headers:
+            Retry-After:
+              type: integer
+              format: int32
+              description: Number in seconds to wait
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null       
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null                 
       security:
         - BasicAuth: []
-      deprecated: false      
+      deprecated: false
 securityDefinitions:
   BasicAuth:
     type: basic
@@ -1245,7 +1335,7 @@ definitions:
         type: string
         description: the merchant url to hit post authorization step
         minLength: 1
-        maxLength: 2147483647
+        maxLength: 255
       permissions:
         type: array
         description: |-
@@ -1937,6 +2027,8 @@ definitions:
       currency:
         type: string
         description: transaction currency
+        enum:
+          - GBP
       email:
         type: string
         description: Email address where payment status notifications will be sent to
@@ -2107,6 +2199,81 @@ definitions:
         countryCode: GB
         language: en
         email: client@example.com
+  ReversePaymentRequest:
+    type: object
+    properties:
+      remmitanceInfo:
+        type: string
+        description: Remittance information that will be included in the reversed Credit Transfer.
+    title: "ReversePaymentRequest"
+  ReversePaymentResponse:
+    type: object
+    required:
+      - amount
+      - countryCode
+      - currency
+      - id
+      - reference
+      - status
+    properties:
+      amount:
+        type: string
+        description: amount
+      countryCode:
+        type: string
+        description: countryCode - ISO country code - indicates where customer is domiciled (ISO 3166 Alpha-2)
+      currency:
+        type: string
+        description: transaction currency
+        enum:
+          - GBP
+      email:
+        type: string
+        description: Email address where payment status notifications will be sent to
+      id:
+        type: string
+        description: 'id, this is used to get updates on the payment'
+      language:
+        type: string
+        description: 'the customers preferred language, defaults to en ISO 639-1: two-letter codes, one per language'
+      reference:
+        type: string
+        description: 'reference, matches that reference passed in the payment request'
+      status:
+        type: string
+        description: 'paymentStatus, the latest payment status'
+        enum:
+          - PENDING_APPROVAL
+          - REJECTED
+          - IN_PROGRESS
+          - COMPLETE
+          - RECEIVED
+          - REVERSED
+    title: ReversePaymentResponse
+  ReversePaymentResponseEnvelope:
+    type: object
+    required:
+      - data
+      - uri
+    properties:
+      data:
+        description: ReversePaymentResponse
+        $ref: '#/definitions/ReversePaymentResponse'
+      uri:
+        type: string
+        description: Holds resource uri.
+    title: ReversePaymentResponseEnvelope
+    example:
+      uri: /payments/ybo8zayk2q
+      data:
+        id: ybo8zayk2q
+        reference: reference
+        status: REVERSED
+        amount: '99.99'
+        currency: GBP
+        countryCode: GB
+        language: en
+        email: client@example.com    
   ProprietaryBankTransactionCode:
     type: object
     required:
