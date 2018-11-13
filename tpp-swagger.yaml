@@ -7,7 +7,7 @@ info:
   contact:
     name: Nuapay
     email: api.support@nuapay.com
-host: api.nuapay.com
+host: tpp.nuapay.com
 basePath: "/"
 tags:
   - name: AISP Service
@@ -1259,25 +1259,25 @@ definitions:
     example:
       uri: "/accounts/1/balances"
       data:
-        accountId: "1"
-        amount:
-          amount: "100.01"
-          currency: "GBP"
-        creditDebitIndicator: "Credit"
-        creditLine:
-            amount:
-              amount: "100.01"
-              currency: "GBP"
-            included: true
-            type: "Pre-Agreed"
-        dateTime: "2018-10-30T06:43:03.000+00:00"
-        type: "ClosingAvailable"
+       -  accountId: "1"
+          amount:
+            amount: "100.01"
+            currency: "GBP"
+          creditDebitIndicator: "Credit"
+          creditLine:
+              amount:
+                amount: "100.01"
+                currency: "GBP"
+              included: true
+              type: "Pre-Agreed"
+          dateTime: "2018-10-30T06:43:03.000+00:00"
+          type: "ClosingAvailable"
       links:
-        First: "https://tpp.nuapay.com/accounts/1/transactions/"       
-        Last: "https://tpp.nuapay.com/accounts/1/transactions?pg=1"
-        Next: null
-        Prev: null
-        Self: "https://tpp.nuapay.com/accounts/1/transactions?pg=1"
+        first: "https://tpp.nuapay.com/accounts/1/transactions/"       
+        last: "https://tpp.nuapay.com/accounts/1/transactions?pg=1"
+        next: null
+        prev: null
+        self: "https://tpp.nuapay.com/accounts/1/transactions?pg=1"
       meta:
         firstAvailableDateTime: null
         lastAvailableDateTime: null
@@ -1476,7 +1476,7 @@ definitions:
         accountRequestId: 37068a7d-f28e-417a-a3da-50f0140f123b
         accountRequestReference: 6a6aba1f-d5e2-4fee-a60b-1aa05cd6d456
         accountRequestStatus: AwaitingAuthorisation
-        aspspAuthUrl: "http://sent-test-spr6.sent.local:8080/bank/authorize?response_type=code+id_token&scope=openid+accounts&client_id=test&redirect_uri=http%3A%2F%2Fsent-test-spr6%3A8080%2Ftpp%2Faccounts%2Foauthanchorsafe&state=7d1ae35f-9b18-4445-b927-f629b2d13f92&nonce=e55afe21-e24e-479c-ba3f-1aa99aa48b67&request=eyJraWQiOiJOdWFwYXlCYW5rX0tleUlEIiwiYWxnIjoiUlMyNTYifQ.eyJtYXhfYWdlIjo4NjQwMCwiYXVkIjoiaHR0cHM6XC9cL2FwaS5hbHBoYW5iYW5rLmNvbSIsInNjb3BlIjoib3BlbmlkIGFjY291bnRzIiwiaXNzIjoidGVzdCIsImNsYWltcyI6eyJ1c2VyaW5mbyI6eyJvcGVuYmFua2luZ19pbnRlbnRfaWQiOnsidmFsdWUiOiJ1cm46YWxwaGFiYW5rOmludGVudDozNzA2OGE3ZC1mMjhlLTQxN2EtYTNkYS01MGYwMTQwZjEyM2IiLCJlc3NlbnRpYWwiOnRydWV9fSwiaWRfdG9rZW4iOnsib3BlbmJhbmtpbmdfaW50ZW50X2lkIjp7InZhbHVlIjoidXJuOmFscGhhYmFuazppbnRlbnQ6MzcwNjhhN2QtZjI4ZS00MTdhLWEzZGEtNTBmMDE0MGYxMjNiIiwiZXNzZW50aWFsIjp0cnVlfSwiYWNyIjp7ImVzc2VudGlhbCI6dHJ1ZSwidmFsdWVzIjpbInVybjpvcGVuYmFua2luZzpwc2QyOmNhIl19fX0sInJlc3BvbnNlX3R5cGUiOiJjb2RlIGlkX3Rva2VuIiwicmVkaXJlY3RfdXJpIjoiaHR0cDpcL1wvc2VudC10ZXN0LXNwcjY6ODA4MFwvdHBwXC9hY2NvdW50c1wvb2F1dGhhbmNob3JzYWZlIiwic3RhdGUiOiI3ZDFhZTM1Zi05YjE4LTQ0NDUtYjkyNy1mNjI5YjJkMTNmOTIiLCJpYXQiOjE1NDA1NjU3MTUsIm5vbmNlIjoiZTU1YWZlMjEtZTI0ZS00NzljLWJhM2YtMWFhOTlhYTQ4YjY3IiwiY2xpZW50X2lkIjoidGVzdCJ9.LJAsmdcK7iYBRwBhpn1HVk1jm2mgo3x_su_XjF2q9NQ6BOdfw9U0fkAu9vCOHyzLrHtFalo6kqPReLbEbnREV5lIxy_jPqZ_sOSS1Pw3dp83dc8wavZbnPaqSqJMgsjFvDQwRCyPYEJupqtOUpoqq5RCgyUpsA149OjKzgH0qAlz1z3trECWrFoBZb0IrqXJgfUxbTDDXfamIZo24R6DnvOArbTRNC5-1KF5m_pmTOlh-2OeDXMb_KnKBvSYBf81dlm3xxQ0-aDlDRcxxUEB2R6vfaxcRi007dAf8HU_AfeVeAVk2BOe-wgZH85EMe9_SMofZWzwwpwYVZO2m56JGQ"
+        aspspAuthUrl: "https://bank.com/bank/authorize?response_type=code+id_token&scope=openid+accounts&client_id=test&redirect_uri=http%3A%2F%2Fsent-test-spr6%3A8080%2Ftpp%2Faccounts%2Foauthanchorsafe&state=7d1ae35f-9b18-4445-b927-f629b2d13f92&nonce=e55afe21-e24e-479c-ba3f-1aa99aa48b67&request=eyJraWQiOiJOdWFwYXlCYW5rX0tleUlEIiwiYWxnIjoiUlMyNTYifQ.eyJtYXhfYWdlIjo4NjQwMCwiYXVkIjoiaHR0cHM6XC9cL2FwaS5hbHBoYW5iYW5rLmNvbSIsInNjb3BlIjoib3BlbmlkIGFjY291bnRzIiwiaXNzIjoidGVzdCIsImNsYWltcyI6eyJ1c2VyaW5mbyI6eyJvcGVuYmFua2luZ19pbnRlbnRfaWQiOnsidmFsdWUiOiJ1cm46YWxwaGFiYW5rOmludGVudDozNzA2OGE3ZC1mMjhlLTQxN2EtYTNkYS01MGYwMTQwZjEyM2IiLCJlc3NlbnRpYWwiOnRydWV9fSwiaWRfdG9rZW4iOnsib3BlbmJhbmtpbmdfaW50ZW50X2lkIjp7InZhbHVlIjoidXJuOmFscGhhYmFuazppbnRlbnQ6MzcwNjhhN2QtZjI4ZS00MTdhLWEzZGEtNTBmMDE0MGYxMjNiIiwiZXNzZW50aWFsIjp0cnVlfSwiYWNyIjp7ImVzc2VudGlhbCI6dHJ1ZSwidmFsdWVzIjpbInVybjpvcGVuYmFua2luZzpwc2QyOmNhIl19fX0sInJlc3BvbnNlX3R5cGUiOiJjb2RlIGlkX3Rva2VuIiwicmVkaXJlY3RfdXJpIjoiaHR0cDpcL1wvc2VudC10ZXN0LXNwcjY6ODA4MFwvdHBwXC9hY2NvdW50c1wvb2F1dGhhbmNob3JzYWZlIiwic3RhdGUiOiI3ZDFhZTM1Zi05YjE4LTQ0NDUtYjkyNy1mNjI5YjJkMTNmOTIiLCJpYXQiOjE1NDA1NjU3MTUsIm5vbmNlIjoiZTU1YWZlMjEtZTI0ZS00NzljLWJhM2YtMWFhOTlhYTQ4YjY3IiwiY2xpZW50X2lkIjoidGVzdCJ9.LJAsmdcK7iYBRwBhpn1HVk1jm2mgo3x_su_XjF2q9NQ6BOdfw9U0fkAu9vCOHyzLrHtFalo6kqPReLbEbnREV5lIxy_jPqZ_sOSS1Pw3dp83dc8wavZbnPaqSqJMgsjFvDQwRCyPYEJupqtOUpoqq5RCgyUpsA149OjKzgH0qAlz1z3trECWrFoBZb0IrqXJgfUxbTDDXfamIZo24R6DnvOArbTRNC5-1KF5m_pmTOlh-2OeDXMb_KnKBvSYBf81dlm3xxQ0-aDlDRcxxUEB2R6vfaxcRi007dAf8HU_AfeVeAVk2BOe-wgZH85EMe9_SMofZWzwwpwYVZO2m56JGQ"
         creationDateTime: 2018-10-26T14:55:15.356+00:00
         expirationDateTime: 2018-10-26T14:47:46.289+00:00
         permissions": ["ReadAccountsDetail", "ReadTransactionsDetail", "ReadTransactionsDebits", "ReadTransactionsCredits"]
@@ -1519,42 +1519,42 @@ definitions:
     example:
       uri: "/accounts/1/transactions"
       data:
-        accountId: "1"
-        transactionId: "200"
-        transactionReference: null
-        amount:
-          amount: "20000.0"
-          currency: "GBP"
-        creditDebitIndicator: "Debit"
-        transactionStatus: "BOOKED"
-        bookingDateTime: "2018-08-19T12:49:30.128+00:00"
-        valueDateTime: "2018-08-19T12:49:30.128+00:00"
-        transactionInformation: null
-        addressLine: null
-        bankTransactionCode:
-          code: "13"
-          subCode: "1D"
-        proprietaryBankTransactionCode:
-          code: "PC"
-          issuer: "Issuer"
-        balance:
-          accountId: null
+       -  accountId: "1"
+          transactionId: "200"
+          transactionReference: null
           amount:
-            amount: "234"
-            currency: "EUR"
-          creditDebitIndicator: "Credit"
-          creditLine: []
-          dateTime: null
-          type: "Expected"
-        merchantDetails:
-          merchantName: "merchant"
-          merchantCategoryCode: "md"
+            amount: "20000.0"
+            currency: "GBP"
+          creditDebitIndicator: "Debit"
+          transactionStatus: "BOOKED"
+          bookingDateTime: "2018-08-19T12:49:30.128+00:00"
+          valueDateTime: "2018-08-19T12:49:30.128+00:00"
+          transactionInformation: null
+          addressLine: null
+          bankTransactionCode:
+            code: "13"
+            subCode: "1D"
+          proprietaryBankTransactionCode:
+            code: "PC"
+            issuer: "Issuer"
+          balance:
+            accountId: null
+            amount:
+              amount: "234"
+              currency: "EUR"
+            creditDebitIndicator: "Credit"
+            creditLine: []
+            dateTime: null
+            type: "Expected"
+          merchantDetails:
+            merchantName: "merchant"
+            merchantCategoryCode: "md"
       links:
-          first: "http://localhost:8080/accounts/1/transactions?pg=1"
-          last: "http://localhost:8080/accounts/1/transactions?pg=1"
+          first: "https://tpp.nuapay.com/accounts/1/transactions?pg=1"
+          last: "https://tpp.nuapay.com/accounts/1/transactions?pg=1"
           next: null
           prev: null
-          self: "http://localhost:8080/accounts/1/transactions?pg=1"
+          self: "https://tpp.nuapay.com/accounts/1/transactions?pg=1"
       meta:    
           firstAvailableDateTime: null
           lastAvailableDateTime: null
@@ -1583,23 +1583,23 @@ definitions:
     example:
       uri: "/accounts"
       data:
-        account:
-          identification: "GB35SELN00999903769154"
-          name: "GB35SELN00999903769154"
-          schemeName: "IBAN"
-          secondaryIdentification: null
-        servicer:
-          schemeName: "BICFI"
-          identification: "SELNGB21"
-        accountId: "1"
-        currency: "GBP"
-        nickname: "Customer Current Account" 
+        - account:
+            identification: "GB35SELN00999903769154"
+            name: "GB35SELN00999903769154"
+            schemeName: "IBAN"
+            secondaryIdentification: null
+          servicer:
+            schemeName: "BICFI"
+            identification: "SELNGB21"
+          accountId: "1"
+          currency: "GBP"
+          nickname: "Customer Current Account" 
       links:
-          first: "http://localhost:8080/accounts?pg=1"
-          last: "http://localhost:8080/accounts?pg=1"
+          first: "https://tpp.nuapay.com/accounts?pg=1"
+          last: "https://tpp.nuapay.com/accounts?pg=1"
           next: null
           prev: null
-          self: "http://localhost:8080/accounts?pg=1"
+          self: "https://tpp.nuapay.com/accounts?pg=1"
       meta:
           firstAvailableDateTime: null
           lastAvailableDateTime: null
@@ -1728,17 +1728,17 @@ definitions:
     example:
       uri: "/banks"
       data: 
-        id: "8ow24y2pdx"
-        uri: "/banks/8ow24y2pdx"
-        name: "Nuapay"
-        logo: "https://www.nuapay.com/wp-content/uploads/2018/04/nuapay.svg"
-        connectionType: "UKOPENBANKING"
+       -  id: "8ow24y2pdx"
+          uri: "/banks/8ow24y2pdx"
+          name: "Nuapay"
+          logo: "https://www.nuapay.com/wp-content/uploads/2018/04/nuapay.svg"
+          connectionType: "UKOPENBANKING"
       links:
-        first: "http://localhost:8080/tpp/banks?page=1"
-        last: "http://localhost:8080/tpp/banks?page=1"
+        first: "https://tpp.nuapay.com/tpp/banks?page=1"
+        last: "https://tpp.nuapay.com/tpp/banks?page=1"
         next: null
         prev: null
-        self: "http://localhost:8080/tpp/banks?page=1"
+        self: "https://tpp.nuapay.com/tpp/banks?page=1"
       meta":
         firstAvailableDateTime: null
         lastAvailableDateTime: null
