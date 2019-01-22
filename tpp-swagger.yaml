@@ -1765,19 +1765,20 @@ definitions:
         $ref: '#/definitions/MetaData'
     title: BanksResponse
     example:
-      uri: "/banks"
+      uri: /banks
       data: 
-       -  id: "8ow24y2pdx"
-          uri: "/banks/8ow24y2pdx"
-          name: "Nuapay"
-          logo: "https://www.nuapay.com/wp-content/uploads/2018/04/nuapay.svg"
-          connectionType: "UKOPENBANKING"
+       -  id: 8ow24y2pdx
+          uri: /banks/8ow24y2pdx
+          name: Nuapay
+          logo: https://www.nuapay.com/wp-content/uploads/2018/04/nuapay.svg
+          connectionType: UKOPENBANKING
+          country: GB
       links:
-        first: "https://tpp.nuapay.com/tpp/banks?page=1"
-        last: "https://tpp.nuapay.com/tpp/banks?page=1"
+        first: https://tpp.nuapay.com/tpp/banks?page=1
+        last: https://tpp.nuapay.com/tpp/banks?page=1
         next: null
         prev: null
-        self: "https://tpp.nuapay.com/tpp/banks?page=1"
+        self: https://tpp.nuapay.com/tpp/banks?page=1
       meta":
         firstAvailableDateTime: null
         lastAvailableDateTime: null
