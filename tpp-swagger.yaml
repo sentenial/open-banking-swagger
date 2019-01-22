@@ -1,14 +1,20 @@
 swagger: '2.0'
 info:
-  description: |-
-    Swagger Spec for the Nuapay TPP OpenBanking / PSD2. Provides AISP, PISP and Banks Endpoints
-  version: 1.2.0
+  description: Swagger Spec for the Nuapay TPP OpenBanking/PSD2. Provides AISP, PISP
+    and Banks Endpoints
+  version: '1.0'
   title: Nuapay TPP API Specification
   contact:
     name: Nuapay
-    email: api.support@nuapay.com
-host: tpp.nuapay.com
-basePath: "/"
+    email: 'api.support@nuapay.com'
+  license:
+    name: 'Nuapay'
+    url: 'https://sentenial.com'
+  x-logo:
+    backgroundColor: '#FFFFFF'
+    url: 'https://www.nuapay.com/wp-content/uploads/2018/04/nuapay.svg'
+host: 'tpp.nuapay.com'
+basePath: /
 tags:
   - name: AISP Service
     description: |-
@@ -58,12 +64,14 @@ paths:
           type: string
         - name: x-tpp-bank-id
           in: header
-          description: The bank id uniquely identifies the bank we wish to interact with.
+          description: The bank id uniquely identifies the bank we wish to interact
+            with.
           required: true
           type: string
         - name: x-tpp-customer-ip-address
           in: header
-          description: The PSU's IP address if the PSU is currently logged in with the TPP.
+          description: The PSU's IP address if the PSU is currently logged in with the
+            TPP.
           required: false
           type: string
         - name: x-tpp-customer-last-logged-time
@@ -77,15 +85,15 @@ paths:
           required: false
           type: string
       responses:
-        '201':
-          description: Account Request resource successfully created
+        201:
+          description: Created
           headers:
             x-tpp-interaction-id:
               type: string
               description: Correlation id passed through conversation via all the actors involved.
           schema:
-            $ref: '#/definitions/AccountRequestResponse'
-        '400':
+            $ref: '#/definitions/AccountRequestResponseEnvelope'
+        400:
           description: Bad Request
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -98,7 +106,7 @@ paths:
                 description: Invalid URL Provided
                 field: merchantPostAuthUrl
                 resourceUri: null
-        '401':
+        401:
           description: Unauthorized
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -107,7 +115,7 @@ paths:
               returnCode: "T0008"
               returnDescription: Request failed, authorization error in ASPSP resource server
               details: null
-        '403':
+        403:
           description: Forbidden
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -116,7 +124,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null  
-        '404':
+        404:
           description: Not Found
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -125,7 +133,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null  
-        '405':
+        405:
           description: Method Not Allowed
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -133,8 +141,8 @@ paths:
             application/json:
               returnCode: null
               returnDescription: null
-              details: null
-        '406':
+              details: null  
+        406:
           description: Not Acceptable
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -143,7 +151,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null
-        '422':
+        422:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -152,7 +160,7 @@ paths:
               returnCode: "T0011"
               returnDescription: Bank Id is invalid
               details: null
-        '429':
+        429:
           description: Too Many Requests
           headers:
             Retry-After:
@@ -166,19 +174,11 @@ paths:
               returnCode: null
               returnDescription: null
               details: null           
-        '500':
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-          examples:
-            application/json:
-              returnCode: "T0008"
-              returnDescription: Request failed, authorization error in ASPSP resource server
-              details: null
       security:
-        - BasicAuth: []
-      deprecated: false
-  '/account-requests/{accountRequestReference}':
+        - OriginatorOAuth2:
+          - openbanking_aisp
+        - OriginatorApiKey: []
+  /account-requests/{accountRequestReference}:
     get:
       tags:
         - AISP Service
@@ -209,15 +209,15 @@ paths:
           required: false
           type: string
       responses:
-        '200':
-          description: Account Request resource successfully retrieved
+        200:
+          description: OK
           headers:
             x-tpp-interaction-id:
               type: string
               description: Correlation id passed through conversation via all the actors involved.
           schema:
-            $ref: '#/definitions/AccountRequestResponse'
-        '400':
+            $ref: '#/definitions/AccountRequestResponseEnvelope'
+        400:
           description: Bad Request
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -226,7 +226,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null 
-        '401':
+        401:
           description: Unauthorized
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -235,7 +235,7 @@ paths:
               returnCode: "T0008"
               returnDescription: Request failed, authorization error in ASPSP resource server
               details: null   
-        '403':
+        403:
           description: Forbidden
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -244,7 +244,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '404':
+        404:
           description: Not Found
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -253,7 +253,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '405':
+        405:
           description: Method Not Allowed
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -262,7 +262,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '406':
+        406:
           description: Not Acceptable
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -271,7 +271,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '429':
+        429:
           description: Too Many Requests
           headers:
             Retry-After:
@@ -285,18 +285,10 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '500':
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-          examples:
-            application/json:
-              returnCode: "T0008"
-              returnDescription: Request failed, authorization error in ASPSP resource server
-              details: null            
       security:
-        - BasicAuth: []
-      deprecated: false
+        - OriginatorOAuth2:
+          - openbanking_aisp
+        - OriginatorApiKey: []
     delete:
       tags:
         - AISP Service
@@ -317,13 +309,13 @@ paths:
           required: false
           type: string
       responses:
-        '204':
-          description: Account Request resource successfully deleted
+        204:
+          description: No Content
           headers:
             x-tpp-interaction-id:
               type: string
               description: Correlation id passed through conversation via all the actors involved.
-        '400':
+        400:
           description: Bad Request
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -332,7 +324,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null 
-        '401':
+        401:
           description: Unauthorized
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -341,7 +333,7 @@ paths:
               returnCode: "T0008"
               returnDescription: Request failed, authorization error in ASPSP resource server
               details: null          
-        '403':
+        403:
           description: Forbidden
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -350,7 +342,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '405':
+        405:
           description: Method Not Allowed
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -359,7 +351,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '406':
+        406:
           description: Not Acceptable
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -368,7 +360,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '429':
+        429:
           description: Too Many Requests
           headers:
             Retry-After:
@@ -382,18 +374,10 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '500':
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-          examples:
-            application/json:
-              returnCode: "T0008"
-              returnDescription: Request failed, authorization error in ASPSP resource server
-              details: null          
       security:
-        - BasicAuth: []
-      deprecated: false
+        - OriginatorOAuth2:
+          - openbanking_aisp
+        - OriginatorApiKey: []
   /accounts:
     get:
       tags:
@@ -419,21 +403,23 @@ paths:
           description: The last login time of the customer.
           required: false
           type: string
+          pattern: ^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)
+            \d{4} \d{2}:\d{2}:\d{2} (GMT|UTC)$
         - name: x-tpp-interaction-id
           in: header
           description: An RFC4122 UID used as a correlation id.
           required: false
           type: string
       responses:
-        '200':
-          description: Accounts successfully retrieved
+        200:
+          description: OK
           headers:
             x-tpp-interaction-id:
               type: string
               description: An RFC4122 UID used as a correlation id.
           schema:
             $ref: '#/definitions/AccountsResponseEnvelope'
-        '400':
+        400:
           description: Bad Request
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -442,7 +428,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null                          
-        '401':
+        401:
           description: Unauthorized
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -451,7 +437,7 @@ paths:
               returnCode: "T0008"
               returnDescription: Request failed, authorization error in ASPSP resource server
               details: null          
-        '403':
+        403:
           description: Forbidden
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -459,8 +445,8 @@ paths:
             application/json:
               returnCode: null
               returnDescription: null
-              details: null            
-        '404':
+              details: null                          
+        404:
           description: Not Found
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -468,8 +454,8 @@ paths:
             application/json:
               returnCode: null
               returnDescription: null
-              details: null            
-        '405':
+              details: null                          
+        405:
           description: Method Not Allowed
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -477,8 +463,8 @@ paths:
             application/json:
               returnCode: null
               returnDescription: null
-              details: null            
-        '406':
+              details: null                          
+        406:
           description: Not Acceptable
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -486,8 +472,8 @@ paths:
             application/json:
               returnCode: null
               returnDescription: null
-              details: null            
-        '429':
+              details: null                          
+        429:
           description: Too Many Requests
           headers:
             Retry-After:
@@ -500,20 +486,12 @@ paths:
             application/json:
               returnCode: null
               returnDescription: null
-              details: null            
-        '500':
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-          examples:
-            application/json:
-              returnCode: "T0008"
-              returnDescription: Request failed, authorization error in ASPSP resource server
-              details: null          
+              details: null                          
       security:
-        - BasicAuth: []
-      deprecated: false
-  '/accounts/{accountId}/balances':
+        - OriginatorOAuth2:
+          - openbanking_aisp
+        - OriginatorApiKey: []
+  /accounts/{accountId}/balances:
     get:
       tags:
         - AISP Service
@@ -543,21 +521,22 @@ paths:
           description: The last login time of the customer.
           required: false
           type: string
+          pattern: ^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\d{4} \d{2}:\d{2}:\d{2} (GMT|UTC)$
         - name: x-tpp-interaction-id
           in: header
           description: An RFC4122 UID used as a correlation id.
           required: false
           type: string
       responses:
-        '200':
-          description: Account Balances successfully retrieved
+        200:
+          description: OK
           headers:
             x-tpp-interaction-id:
               type: string
               description: An RFC4122 UID used as a correlation id.
           schema:
             $ref: '#/definitions/AccountBalancesResponseEnvelope'
-        '400':
+        400:
           description: Bad Request
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -566,7 +545,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null              
-        '401':
+        401:
           description: Unauthorized
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -575,7 +554,7 @@ paths:
               returnCode: "T0008"
               returnDescription: Request failed, authorization error in ASPSP resource server
               details: null          
-        '403':
+        403:
           description: Forbidden
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -583,8 +562,8 @@ paths:
             application/json:
               returnCode: null
               returnDescription: null
-              details: null            
-        '404':
+              details: null              
+        404:
           description: Not Found
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -592,8 +571,8 @@ paths:
             application/json:
               returnCode: null
               returnDescription: null
-              details: null            
-        '405':
+              details: null              
+        405:
           description: Method Not Allowed
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -601,8 +580,8 @@ paths:
             application/json:
               returnCode: null
               returnDescription: null
-              details: null            
-        '406':
+              details: null              
+        406:
           description: Not Acceptable
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -610,8 +589,8 @@ paths:
             application/json:
               returnCode: null
               returnDescription: null
-              details: null
-        '422':
+              details: null              
+        422:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -620,7 +599,7 @@ paths:
               returnCode: "T0015"
               returnDescription: Account Request is pending authorization. Request cannot be processed.
               details: null  
-        '429':
+        429:
           description: Too Many Requests
           headers:
             Retry-After:
@@ -633,20 +612,12 @@ paths:
             application/json:
               returnCode: null
               returnDescription: null
-              details: null            
-        '500':
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-          examples:
-            application/json:
-              returnCode: null
-              returnDescription: null
-              details: null          
+              details: null              
       security:
-        - BasicAuth: []
-      deprecated: false
-  '/accounts/{accountId}/transactions':
+        - OriginatorOAuth2:
+          - openbanking_aisp
+        - OriginatorApiKey: []
+  /accounts/{accountId}/transactions:
     get:
       tags:
         - AISP Service
@@ -688,21 +659,22 @@ paths:
           description: The last login time of the customer.
           required: false
           type: string
+          pattern: ^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\d{4} \d{2}:\d{2}:\d{2} (GMT|UTC)$
         - name: x-tpp-interaction-id
           in: header
           description: An RFC4122 UID used as a correlation id.
           required: false
           type: string
       responses:
-        '200':
-          description: Account Transactions successfully retrieved
+        200:
+          description: OK
           headers:
             x-tpp-interaction-id:
               type: string
               description: An RFC4122 UID used as a correlation id.
           schema:
             $ref: '#/definitions/AccountTransactionsResponseEnvelope'
-        '400':
+        400:
           description: Bad Request
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -714,7 +686,7 @@ paths:
                 code: "T0002"
                 description: Invalid Date Format
                 field: tobookingdatetime             
-        '401':
+        401:
           description: Unauthorized
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -723,7 +695,7 @@ paths:
               returnCode: "T0008"
               returnDescription: Request failed, authorization error in ASPSP resource server
               details: null          
-        '403':
+        403:
           description: Forbidden
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -732,7 +704,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '404':
+        404:
           description: Not Found
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -741,7 +713,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '405':
+        405:
           description: Method Not Allowed
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -750,7 +722,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '406':
+        406:
           description: Not Acceptable
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -758,8 +730,8 @@ paths:
             application/json:
               returnCode: null
               returnDescription: null
-              details: null
-        '422':
+              details: null            
+        422:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -768,7 +740,7 @@ paths:
               returnCode: "T0015"
               returnDescription: Account Request is pending authorization. Request cannot be processed.
               details: null                            
-        '429':
+        429:
           description: Too Many Requests
           headers:
             Retry-After:
@@ -782,18 +754,10 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '500':
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-          examples:
-            application/json:
-              returnCode: "T0008"
-              returnDescription: Request failed, authorization error in ASPSP resource server
-              details: null          
       security:
-        - BasicAuth: []
-      deprecated: false
+        - OriginatorOAuth2:
+          - openbanking_aisp
+        - OriginatorApiKey: []
   /banks:
     get:
       tags:
@@ -806,16 +770,16 @@ paths:
       parameters:
         - name: page
           in: query
-          description: 'The page of results we are looking for (results per page is dynamic and bank dependant), defaults to the first page.'
+          description: The page of results we are looking for (results per page is dynamic and bank dependant), defaults to the first page.
           required: false
           type: integer
           format: int32
       responses:
-        '200':
-          description: Banks successfully retrieved
+        200:
+          description: OK
           schema:
             $ref: '#/definitions/BanksResponse'
-        '400':
+        400:
           description: Bad Request
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -827,7 +791,7 @@ paths:
                 code: "T0001"
                 description: Page  is invalid
                 field: page          
-        '401':
+        401:
           description: Unauthorized
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -836,7 +800,16 @@ paths:
               returnCode: null
               returnDescription: null
               details: null                            
-        '405':
+        403:
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null                            
+        405:
           description: Method Not Allowed
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -844,11 +817,13 @@ paths:
             application/json:
               returnCode: null
               returnDescription: null
-              details: null                             
+              details: null                            
       security:
-        - BasicAuth: []
-      deprecated: false
-  '/banks/{bankId}':
+        - OriginatorOAuth2:
+          - openbanking_aisp
+          - openbanking_pisp
+        - OriginatorApiKey: []
+  /banks/{bankId}:
     get:
       tags:
         - Bank Service
@@ -864,8 +839,8 @@ paths:
           required: true
           type: string
       responses:
-        '501':
-          description: Not Implemented
+        501:
+          description: Not implemented
           schema:
             $ref: '#/definitions/ErrorResponse'
           examples:
@@ -874,8 +849,10 @@ paths:
               returnDescription: null
               details: null            
       security:
-        - BasicAuth: []
-      deprecated: false
+        - OriginatorOAuth2:
+          - openbanking_aisp
+          - openbanking_pisp
+        - OriginatorApiKey: []
   /payments:
     post:
       tags:
@@ -900,11 +877,49 @@ paths:
           required: false
           type: string
       responses:
-        '201':
-          description: Resource successfully created
+        201:
+          description: Created
           schema:
             $ref: '#/definitions/PaymentResponseEnvelope'
-        '400':
+          examples:
+            application/json:
+              uri: /payments/ybo8zayk2q
+              data:
+                id: ybo8zayk2q
+                amount: 99.99
+                countryCode: GB
+                currency: GBP
+                email: client@example.com
+                language: en
+                reference: reference
+                orderDetails:
+                  items:
+                    - name: Flights Outbound
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: "50.00"
+                    - name: Flights Return
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: "50.00"
+                    - name: Flights Return
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: "30.00"
+                    - name: Discounts
+                      description: null
+                      quantity: null
+                      amount: "-5.00"
+                    - name: Total 
+                      description: null
+                      quantity: null
+                      amount: "125.00"
+                integrationType: SELF_HOSTED
+                merchantPostAuthUrl: "https://merchant.openbanking.com/result"
+                bankId: ybo8zd8j2q
+                aspspAuthUrl: http://sent-test-spr6.sent.local:8080/bank/authorize?response_type=code+id_token&scope=openid+payments&client_id=test&redirect_uri=http%3A%2F%2Fsent-test-spr6%3A8080%2Ftpp%2Fpayment-requests%2Foauth&state=0f58db32-52a3-4878-b8ee-0ad7953db871&nonce=0e74d09e-a1fa-444b-8782-d5dc2992b5fd&request=eyJraWQiOiJOdWFwYXlCYW5rX0tleUlEIiwiYWxnIjoiUlMyNTYifQ.eyJtYXhfYWdlIjo4NjQwMCwiYXVkIjoiaHR0cHM6XC9cL2FwaS5hbHBoYW5iYW5rLmNvbSIsInNjb3BlIjoib3BlbmlkIHBheW1lbnRzIiwiaXNzIjoidGVzdCIsImNsYWltcyI6eyJ1c2VyaW5mbyI6eyJvcGVuYmFua2luZ19pbnRlbnRfaWQiOnsidmFsdWUiOiJ1cm46YWxwaGFiYW5rOmludGVudDpkMjhjNzM3ZC05MTk0LTQwYjMtOTY0Yy1mNDg0NzQ2YWI3Y2QiLCJlc3NlbnRpYWwiOnRydWV9fSwiaWRfdG9rZW4iOnsib3BlbmJhbmtpbmdfaW50ZW50X2lkIjp7InZhbHVlIjoidXJuOmFscGhhYmFuazppbnRlbnQ6ZDI4YzczN2QtOTE5NC00MGIzLTk2NGMtZjQ4NDc0NmFiN2NkIiwiZXNzZW50aWFsIjp0cnVlfSwiYWNyIjp7ImVzc2VudGlhbCI6dHJ1ZSwidmFsdWVzIjpbInVybjpvcGVuYmFua2luZzpwc2QyOnNjYSIsInVybjpvcGVuYmFua2luZzpwc2QyOmNhIl19fX0sInJlc3BvbnNlX3R5cGUiOiJjb2RlIGlkX3Rva2VuIiwicmVkaXJlY3RfdXJpIjoiaHR0cDpcL1wvc2VudC10ZXN0LXNwcjY6ODA4MFwvdHBwXC9wYXltZW50LXJlcXVlc3RzXC9vYXV0aCIsInN0YXRlIjoiMGY1OGRiMzItNTJhMy00ODc4LWI4ZWUtMGFkNzk1M2RiODcxIiwiaWF0IjoxNTQ0NTMzNjkwLCJub25jZSI6IjBlNzRkMDllLWExZmEtNDQ0Yi04NzgyLWQ1ZGMyOTkyYjVmZCIsImNsaWVudF9pZCI6InRlc3QifQ.kEONxzdQRLABwBR0VFfV5yCmknVVMuE_aDj0aaV6gDfQib5175sFB1pUuB4o_n6gdOm8qt3VFQEIvPbcNIGoK8noPXm9u5GK0Mqms7YqaMxYW8S_rGDCtEKNXyyjbFQgkgR9Dnq3rudf5T6YDSxYqtnL7IOh6bbO1jbNgi3w2CYt9G84a6Z2sM8T-LrHaGE_bAZGyS0Tu2ihD19iZ6CnsEtD-8o2_dtSfTI8VzcrUE2e4w-Am-f4cvXs0YZIEOH-nY_x4elp6GKzJf9Lkm6UU7xX98DhQmT-kYz66PNuCorjEDTXYZYZZBcE0eCwNO-OCtH_q5nK2WAnh9UeT__xGg
+                status: PENDING_APPROVAL
+        400:
           description: Bad Request
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -916,7 +931,7 @@ paths:
                 code: "T0004"
                 description: Field is invalid
                 field: email
-        '401':
+        401:
           description: Unauthorized
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -925,7 +940,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '403':
+        403:
           description: Forbidden
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -934,7 +949,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null
-        '405':
+        405:
           description: Method Not Allowed
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -943,16 +958,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null
-        '406':
-          description: Not Acceptable
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-          examples:
-            application/json:
-              returnCode: null
-              returnDescription: null
-              details: null            
-        '415':
+        415:
           description: Unsupported Media Type
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -961,7 +967,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null
-        '422':
+        422:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -973,7 +979,7 @@ paths:
                 code: "T0016"
                 description: Amount has to be greater than 0.
                 field: amount
-        '429':
+        429:
           description: Too Many Requests
           headers:
             Retry-After:
@@ -986,20 +992,12 @@ paths:
             application/json:
               returnCode: null
               returnDescription: null
-              details: null            
-        '500':
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-          examples:
-            application/json:
-              returnCode: null
-              returnDescription: null
-              details: null            
+              details: null
       security:
-        - BasicAuth: []
-      deprecated: false
-  '/payments/{paymentId}':
+        - OriginatorOAuth2:
+          - openbanking_pisp
+        - OriginatorApiKey: []
+  /payments/{paymentId}:
     get:
       tags:
         - PISP Service
@@ -1015,11 +1013,49 @@ paths:
           required: true
           type: string
       responses:
-        '200':
-          description: Resource successfully retrieved
+        200:
+          description: OK
           schema:
             $ref: '#/definitions/PaymentResponseEnvelope'
-        '401':
+          examples:
+            application/json:
+              uri: /payments/ybo8zayk2q
+              data:
+                id: ybo8zayk2q
+                amount: 99.99
+                countryCode: GB
+                currency: GBP
+                email: client@example.com
+                language: en
+                reference: reference
+                orderDetails:
+                  items:
+                    - name: Flights Outbound
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: "50.00"
+                    - name: Flights Return
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: "50.00"
+                    - name: Flights Return
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: "30.00"
+                    - name: Discounts
+                      description: null
+                      quantity: null
+                      amount: "-5.00"
+                    - name: Total 
+                      description: null
+                      quantity: null
+                      amount: "125.00"
+                integrationType: CHECKOUT
+                merchantPostAuthUrl: null
+                bankId: null
+                aspspAuthUrl: null
+                status: PENDING_APPROVAL
+        401:
           description: Unauthorized
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -1028,7 +1064,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '403':
+        403:
           description: Forbidden
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -1037,7 +1073,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '404':
+        404:
           description: Not Found
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -1046,7 +1082,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '405':
+        405:
           description: Method Not Allowed
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -1055,7 +1091,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '429':
+        429:
           description: Too Many Requests
           headers:
             Retry-After:
@@ -1069,19 +1105,11 @@ paths:
               returnCode: null
               returnDescription: null
               details: null            
-        '500':
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-          examples:
-            application/json:
-              returnCode: null
-              returnDescription: null
-              details: null            
       security:
-        - BasicAuth: []
-      deprecated: false
-  '/payments/{paymentId}/reverse':
+        - OriginatorOAuth2:
+          - openbanking_pisp
+        - OriginatorApiKey: []
+  /payments/{paymentId}/reverse:
     post:
       tags:
         - PISP Service
@@ -1103,11 +1131,11 @@ paths:
           schema: 
             $ref: '#/definitions/ReversePaymentRequest'
       responses:
-        '200':
+        200:
           description: Payment successfully reversed
           schema:
             $ref: '#/definitions/ReversePaymentResponseEnvelope'
-        '400':
+        400:
           description: "Bad Request"
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -1116,7 +1144,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null               
-        '401':
+        401:
           description: Unauthorized
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -1125,7 +1153,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null                
-        '403':
+        403:
           description: Forbidden
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -1134,7 +1162,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null                
-        '404':
+        404:
           description: Not Found
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -1143,7 +1171,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null               
-        '405':
+        405:
           description: Method Not Allowed
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -1152,7 +1180,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null              
-        '406':
+        406:
           description: "Not Acceptable"
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -1161,7 +1189,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null               
-        '415':
+        415:
           description: "Unsupported Media Type"
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -1170,7 +1198,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null
-        '422':
+        422:
           description: "Unprocessable Entity"
           schema:
             $ref: '#/definitions/ErrorResponse'
@@ -1179,7 +1207,7 @@ paths:
               returnCode: null
               returnDescription: null
               details: null               
-        '429':
+        429:
           description: Too Many Requests
           headers:
             Retry-After:
@@ -1193,21 +1221,20 @@ paths:
               returnCode: null
               returnDescription: null
               details: null       
-        '500':
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-          examples:
-            application/json:
-              returnCode: null
-              returnDescription: null
-              details: null                 
       security:
-        - BasicAuth: []
-      deprecated: false
+        - OriginatorOAuth2:
+          - openbanking_pisp
+        - OriginatorApiKey: []
 securityDefinitions:
-  BasicAuth:
+  OriginatorApiKey:
     type: basic
+  OriginatorOAuth2:
+    type: oauth2
+    tokenUrl: https://api.nuapay.com/oauth/token_key
+    flow: password
+    scopes:
+      openbanking_aisp: Account Information Service Provider access.
+      openbanking_pisp: Payment Initiation Service Provider access.
 definitions:
   Account:
     type: object
@@ -1223,10 +1250,10 @@ definitions:
       currency:
         type: string
         description: 'Identification of the currency in which the account is held.  Usage: Currency should only be used in case one and the same account number covers several currencies and the initiating party needs to identify which currency needs to be used for settlement on the account.'
-        pattern: '^[A-Z]{3,3}$'
+        pattern: ^[A-Z]{3,3}$
       nickname:
         type: string
-        description: 'The nickname of the account, assigned by the account owner in order to provide an additional means of identification of the account.'
+        description: The nickname of the account, assigned by the account owner in order to provide an additional means of identification of the account.
         minLength: 1
         maxLength: 70
       account:
@@ -1261,12 +1288,12 @@ definitions:
       data:
        -  accountId: "1"
           amount:
-            amount: "100.01"
+            amount: 100.01
             currency: "GBP"
           creditDebitIndicator: "Credit"
           creditLine:
               amount:
-                amount: "100.01"
+                amount: 100.01
                 currency: "GBP"
               included: true
               type: "Pre-Agreed"
@@ -1304,7 +1331,10 @@ definitions:
         maxLength: 70
       schemeName:
         type: string
-        description: 'Name of the identification scheme, in a coded form as published in an external list.'
+        description: Name of the identification scheme, in a coded form as published in an external list.
+        enum:
+          - IBAN
+          - SortCodeAccountNumber
       secondaryIdentification:
         type: string
         description: |-
@@ -1314,8 +1344,7 @@ definitions:
         minLength: 1
         maxLength: 34
     title: AccountData
-    description: |-
-      Provides the details to identify an account.
+    description: Provides the details to identify an account.
   AccountRequest:
     type: object
     required:
@@ -1338,8 +1367,9 @@ definitions:
         maxLength: 255
       permissions:
         type: array
-        description: |-
-          Specifies the Open Banking account request types. This is a list of the data clusters being consented by the PSU, and requested for authorisation with the ASPSP.
+        description: Specifies the Open Banking account request types. This is a list
+          of the data clusters being consented by the PSU, and requested for authorisation
+          with the ASPSP.
         items:
           type: string
           enum:
@@ -1375,11 +1405,11 @@ definitions:
           
           All date-time fields in responses must include the timezone. An example is below: 2017-04-05T10:43:07+00:00'
     example:
-      expirationDateTime: 2018-10-26T14:47:46.289Z
+      expirationDateTime: '2018-10-26T14:47:46.289Z'
       merchantPostAuthUrl: http://www.merchant-example.com
       permissions: ["ReadAccountsDetail", "ReadTransactionsDetail", "ReadTransactionsDebits", "ReadTransactionsCredits"]
-      transactionFromDateTime: 2018-08-26T14:47:46.289Z
-      transactionToDateTime: 2018-10-26T14:47:46.289Z
+      transactionFromDateTime: '2018-08-26T14:47:46.289Z'
+      transactionToDateTime: '2018-10-26T14:47:46.289Z'
     title: AccountRequest
   AccountRequestResponse:
     type: object
@@ -1390,16 +1420,13 @@ definitions:
     properties:
       accountRequestId:
         type: string
-        description: |-
-          The account request id that identifies the request at the bank.
+        description: The account request id that identifies the request at the bank.
       accountRequestReference:
         type: string
-        description: |-
-          The account request reference for the merchant to check on an account request.
+        description: The account request reference for the merchant to check on an account request.
       accountRequestStatus:
         type: string
-        description: |-
-          The account request status.
+        description: The account request status.
         enum:
           - Authorised
           - AwaitingAuthorisation
@@ -1408,8 +1435,7 @@ definitions:
           - Error
       aspspAuthUrl:
         type: string
-        description: |-
-          The ASPSP url to redirect the PSU to for authorization of account access.
+        description: The ASPSP url to redirect the PSU to for authorization of account  access.
       creationDateTime:
         type: string
         format: date-time
@@ -1430,8 +1456,9 @@ definitions:
           'An example is below: 2017-04-05T10:43:07+00:00'
       permissions:
         type: array
-        description: |-
-          'Specifies the Open Banking account request types. This is a list of the data clusters being consented by the PSU, and requested for authorisation with the ASPSP.'
+        description: Specifies the Open Banking account request types. This is a list
+          of the data clusters being consented by the PSU, and requested for authorisation
+          with the ASPSP.
         items:
           type: string
           enum:
@@ -1477,11 +1504,11 @@ definitions:
         accountRequestReference: 6a6aba1f-d5e2-4fee-a60b-1aa05cd6d456
         accountRequestStatus: AwaitingAuthorisation
         aspspAuthUrl: "https://bank.com/bank/authorize?response_type=code+id_token&scope=openid+accounts&client_id=test&redirect_uri=http%3A%2F%2Fsent-test-spr6%3A8080%2Ftpp%2Faccounts%2Foauthanchorsafe&state=7d1ae35f-9b18-4445-b927-f629b2d13f92&nonce=e55afe21-e24e-479c-ba3f-1aa99aa48b67&request=eyJraWQiOiJOdWFwYXlCYW5rX0tleUlEIiwiYWxnIjoiUlMyNTYifQ.eyJtYXhfYWdlIjo4NjQwMCwiYXVkIjoiaHR0cHM6XC9cL2FwaS5hbHBoYW5iYW5rLmNvbSIsInNjb3BlIjoib3BlbmlkIGFjY291bnRzIiwiaXNzIjoidGVzdCIsImNsYWltcyI6eyJ1c2VyaW5mbyI6eyJvcGVuYmFua2luZ19pbnRlbnRfaWQiOnsidmFsdWUiOiJ1cm46YWxwaGFiYW5rOmludGVudDozNzA2OGE3ZC1mMjhlLTQxN2EtYTNkYS01MGYwMTQwZjEyM2IiLCJlc3NlbnRpYWwiOnRydWV9fSwiaWRfdG9rZW4iOnsib3BlbmJhbmtpbmdfaW50ZW50X2lkIjp7InZhbHVlIjoidXJuOmFscGhhYmFuazppbnRlbnQ6MzcwNjhhN2QtZjI4ZS00MTdhLWEzZGEtNTBmMDE0MGYxMjNiIiwiZXNzZW50aWFsIjp0cnVlfSwiYWNyIjp7ImVzc2VudGlhbCI6dHJ1ZSwidmFsdWVzIjpbInVybjpvcGVuYmFua2luZzpwc2QyOmNhIl19fX0sInJlc3BvbnNlX3R5cGUiOiJjb2RlIGlkX3Rva2VuIiwicmVkaXJlY3RfdXJpIjoiaHR0cDpcL1wvc2VudC10ZXN0LXNwcjY6ODA4MFwvdHBwXC9hY2NvdW50c1wvb2F1dGhhbmNob3JzYWZlIiwic3RhdGUiOiI3ZDFhZTM1Zi05YjE4LTQ0NDUtYjkyNy1mNjI5YjJkMTNmOTIiLCJpYXQiOjE1NDA1NjU3MTUsIm5vbmNlIjoiZTU1YWZlMjEtZTI0ZS00NzljLWJhM2YtMWFhOTlhYTQ4YjY3IiwiY2xpZW50X2lkIjoidGVzdCJ9.LJAsmdcK7iYBRwBhpn1HVk1jm2mgo3x_su_XjF2q9NQ6BOdfw9U0fkAu9vCOHyzLrHtFalo6kqPReLbEbnREV5lIxy_jPqZ_sOSS1Pw3dp83dc8wavZbnPaqSqJMgsjFvDQwRCyPYEJupqtOUpoqq5RCgyUpsA149OjKzgH0qAlz1z3trECWrFoBZb0IrqXJgfUxbTDDXfamIZo24R6DnvOArbTRNC5-1KF5m_pmTOlh-2OeDXMb_KnKBvSYBf81dlm3xxQ0-aDlDRcxxUEB2R6vfaxcRi007dAf8HU_AfeVeAVk2BOe-wgZH85EMe9_SMofZWzwwpwYVZO2m56JGQ"
-        creationDateTime: 2018-10-26T14:55:15.356+00:00
-        expirationDateTime: 2018-10-26T14:47:46.289+00:00
+        creationDateTime: '2018-10-26T14:55:15.356+00:00'
+        expirationDateTime: '2018-10-26T14:47:46.289+00:00'
         permissions": ["ReadAccountsDetail", "ReadTransactionsDetail", "ReadTransactionsDebits", "ReadTransactionsCredits"]
-        transactionFromDateTime: 2018-08-26T14:47:46.289+00:00
-        transactionToDateTime: 2018-10-26T14:47:46.289+00:00   
+        transactionFromDateTime: '2018-08-26T14:47:46.289+00:00'
+        transactionToDateTime: '2018-10-26T14:47:46.289+00:00'  
     title: AccountRequestResponse
   AccountRequestResponseEnvelope:
     type: object
@@ -1523,7 +1550,7 @@ definitions:
           transactionId: "200"
           transactionReference: null
           amount:
-            amount: "20000.0"
+            amount: 20000.00
             currency: "GBP"
           creditDebitIndicator: "Debit"
           transactionStatus: "BOOKED"
@@ -1540,7 +1567,7 @@ definitions:
           balance:
             accountId: null
             amount:
-              amount: "234"
+              amount: 234.00
               currency: "EUR"
             creditDebitIndicator: "Credit"
             creditLine: []
@@ -1611,12 +1638,16 @@ definitions:
       - currency
     properties:
       amount:
-        type: string
-        pattern: '^\d{1,13}\.\d{1,5}$'
+        type: number
+        minimum: 0.01
+        maximum: 999999999999.99
       currency:
         type: string
-        description: 'A code allocated to a currency by a Maintenance Agency under an international identification scheme, as described in the latest edition of the international standard ISO 4217 - Codes for the representation of currencies and funds.'
-        pattern: '^[A-Z]{3,3}$'
+        description: A code allocated to a currency by a Maintenance Agency under
+          an international identification scheme, as described in the latest edition
+          of the international standard ISO 4217 - Codes for the representation of
+          currencies and funds.
+        pattern: ^[A-Z]{3,3}$
     title: Amount
   Balance:
     type: object
@@ -1628,13 +1659,15 @@ definitions:
     properties:
       accountId:
         type: string
-        description: A unique and immutable identifier used to identify the account resource. This identifier has no meaning to the account owner.
+        description: A unique and immutable identifier used to identify the account
+          resource. This identifier has no meaning to the account owner.
       amount:
         description: Amount of money of the cash balance.
         $ref: '#/definitions/Amount'
       creditDebitIndicator:
         type: string
-        description: 'Indicates whether the balance is a credit or a debit balance. Usage: A zero balance is considered to be a credit balance.'
+        description: 'Indicates whether the balance is a credit or a debit balance.
+          Usage: A zero balance is considered to be a credit balance.'
         enum:
           - Credit
           - Debit
@@ -1646,10 +1679,12 @@ definitions:
       dateTime:
         type: string
         format: date-time
-        description: 'Indicates the date (and time) of the balance. All dates in the JSON payloads are represented in ISO 8601 date-time format. All date-time fields in responses must include the timezone. An example is below: 2017-04-05T10:43:07+00:00'
+        description: 'Indicates the date (and time) of the balance. All dates in the
+          JSON payloads are represented in ISO 8601 date-time format. All date-time
+          fields in responses must include the timezone. An example is below: 2017-04-05T10:43:07+00:00'
       type:
         type: string
-        description: 'Balance type, in a coded form.'
+        description: Balance type, in a coded form.
         enum:
           - ClosingAvailable
           - ClosingBooked
@@ -1671,6 +1706,7 @@ definitions:
       - logo
       - name
       - uri
+      - country
     properties:
       id:
         type: string
@@ -1691,6 +1727,9 @@ definitions:
           - DIRECT
           - UKOPENBANKING
           - PSD2
+      country:
+        type: string
+        description: countryCode - ISO country code - indicates where customer is domiciled (ISO 3166 Alpha-2)
     title: Bank
   BankTransactionCode:
     type: object
@@ -1753,137 +1792,18 @@ definitions:
         $ref: '#/definitions/Amount'
       included:
         type: boolean
-        description: 'Indicates whether or not the credit line is included in the balance of the account. Usage: If not present, credit line is not included in the balance amount of the account.'
+        description: 'Indicates whether or not the credit line is included in the
+          balance of the account. Usage: If not present, credit line is not included
+          in the balance amount of the account.'
       type:
         type: string
-        description: 'Limit type, in a coded form.'
+        description: Limit type, in a coded form.
         enum:
           - Pre-Agreed
           - Emergency
           - Temporary
     title: CreditLine
     description: CreditLine
-  CreditorAccount:
-    type: object
-    required:
-      - identification
-      - name
-      - schemeName
-    properties:
-      identification:
-        type: string
-        description: Identification assigned by an institution to identify an account. This identification is known by the account owner.
-        minLength: 0
-        maxLength: 34
-      name:
-        type: string
-        description: 'Name of the account, as assigned by the account servicing institution, in agreement with the account owner in order to provide an additional means of identification of the account. Usage: The account name is different from the account owner name. The account name is used in certain user communities to provide a means of identifying the account, in addition to the account ownerâ€™s identity and the account number. ASPSPs may carry out name validation for Confirmation of Payee, but it is not mandatory.'
-        minLength: 0
-        maxLength: 70
-      schemeName:
-        type: string
-        description: 'Name of the identification scheme, in a coded form as published in an external list.'
-      secondaryIdentification:
-        type: string
-        description: Identification assigned by an institution to identify an account. This identification is known by the account owner.
-        minLength: 1
-        maxLength: 34
-    title: CreditorAccount
-    description: Unambiguous identification of the account of the creditor to which a credit entry will be posted as a result of the payment transaction.
-  CreditorAgent:
-    type: object
-    properties:
-      identification:
-        type: string
-        description: When creditorAccount schemeName = IBAN this field should be populated with the BIC of the FI.
-        minLength: 1
-        maxLength: 35
-      schemeName:
-        type: string
-        description: 'Name of the identification scheme, in a coded form as published in an external list.'
-    title: CreditorAgent
-    description: Identification of the financial institution servicing the creditor account.
-  DebtorAccount:
-    type: object
-    required:
-      - identification
-      - schemeName
-    properties:
-      identification:
-        type: string
-        description: Identification assigned by an institution to identify an account. This identification is known by the account owner.
-        minLength: 0
-        maxLength: 34
-      name:
-        type: string
-        description: 'Name of the account, as assigned by the account servicing institution, in agreement with the account owner in order to provide an additional means of identification of the account. Usage: The account name is different from the account owner name. The account name is used in certain user communities to provide a means of identifying the account, in addition to the account ownerâ€™s identity and the account number.'
-        minLength: 1
-        maxLength: 70
-      schemeName:
-        type: string
-        description: 'Name of the identification scheme, in a coded form as published in an external list.'
-      secondaryIdentification:
-        type: string
-        description: Identification assigned by an institution to identify an account. This identification is known by the account owner.
-        minLength: 1
-        maxLength: 34
-    title: DebtorAccount
-    description: Unambiguous identification of the account of the debtor to which a debit entry will be made as a result of the transaction.
-  DebtorAgent:
-    type: object
-    properties:
-      identification:
-        type: string
-        description: When debtorAccount schemeName = IBAN this field should be populated with the BIC of the FI. Else not populated.
-        minLength: 1
-        maxLength: 35
-      schemeName:
-        type: string
-        description: 'Name of the identification scheme, in a coded form as published in an external list.'
-    title: DebtorAgent
-    description: Identification of the financial institution servicing the debtor account.
-  DeliveryAddress:
-    type: object
-    required:
-      - country
-      - townName
-    properties:
-      addressLine:
-        type: array
-        description: 'Information that locates and identifies a specific address, as defined by postal services, that is presented in free format text.'
-        items:
-          type: string
-      buildingNumber:
-        type: string
-        description: Number that identifies the position of a building on a street.
-        minLength: 1
-        maxLength: 16
-      country:
-        type: string
-        description: 'Nation with its own government, occupying a particular territory.'
-        pattern: '^[A-Z]{2,2}$'
-      countrySubDivision:
-        type: array
-        description: 'Identifies a subdivision of a country, for instance state, region, county.'
-        items:
-          type: string
-      postCode:
-        type: string
-        description: Identifier consisting of a group of letters and/or numbers that is added to a postal address to assist the sorting of mail.
-        minLength: 1
-        maxLength: 16
-      streetName:
-        type: string
-        description: Name of a street or thoroughfare.
-        minLength: 1
-        maxLength: 70
-      townName:
-        type: string
-        description: 'Name of a built-up area, with defined boundaries, and a local government.'
-        minLength: 0
-        maxLength: 35
-    title: DeliveryAddress
-    description: 'Information that locates and identifies a specific address, as defined by postal services or in free format text.'
   ErrorDetailsItem:
     type: object
     properties:
@@ -1912,21 +1832,27 @@ definitions:
         type: string
         description: Error type description
     title: ErrorResponse
-  InstructedAmount:
+  Items:
     type: object
-    required:
-      - amount
-      - currency
     properties:
       amount:
         type: string
-        pattern: '^\d{1,13}\.\d{1,5}$'
-      currency:
+        description: Amount of payment in the specified currency at the specified rate.
+        pattern: ^-?\d{1,13}\.\d{1,5}$
+      description:
         type: string
-        description: 'A code allocated to a currency by a Maintenance Agency under an international identification scheme, as described in the latest edition of the international standard ISO 4217 - Codes for the representation of currencies and funds.'
-        pattern: '^[A-Z]{3,3}$'
-    title: InstructedAmount
-    description: 'Amount of money to be moved between the debtor and creditor, before deduction of charges, expressed in the currency as ordered by the initiating party. Usage: This amount has to be transported unchanged through the transaction chain.'
+        description: Brief description of the item being purchased by the PSU
+        minLength: 1
+        maxLength: 254
+      name:
+        type: string
+        description: The name of the item being purchased by the PSU.
+        minLength: 1
+        maxLength: 35
+      quantity:
+        type: string
+        description: Quantiy of the particular item being purchased by the PSU.
+    title: Items
   Links:
     type: object
     required:
@@ -1949,7 +1875,7 @@ definitions:
     properties:
       merchantCategoryCode:
         type: string
-        description: 'Category code conform to ISO 18245, related to the type of services or goods the merchant provides for the transaction.'
+        description: Category code conform to ISO 18245, related to the type of services or goods the merchant provides for the transaction.
         minLength: 3
         maxLength: 4
       merchantName:
@@ -1965,49 +1891,30 @@ definitions:
       firstAvailableDateTime:
         type: string
         format: date-time
-        description: 'All dates in the JSON payloads are represented in ISO 8601 date-time format.  All date-time fields in responses must include the timezone. An example is below: 2017-04-05T10:43:07+00:00'
+        description: '  All dates in the JSON payloads are represented in ISO 8601
+          date-time format.  All date-time fields in responses must include the timezone.
+          An example is below: 2017-04-05T10:43:07+00:00'
       lastAvailableDateTime:
         type: string
         format: date-time
-        description: 'All dates in the JSON payloads are represented in ISO 8601 date-time format.  All date-time fields in responses must include the timezone. An example is below: 2017-04-05T10:43:07+00:00'
+        description: '  All dates in the JSON payloads are represented in ISO 8601
+          date-time format.  All date-time fields in responses must include the timezone.
+          An example is below: 2017-04-05T10:43:07+00:00'
       totalPages:
         type: integer
         format: int32
     title: MetaData
     description: Meta Data relevant to the payload
-  PaymentInitiationRequest:
+  OrderDetails:
     type: object
-    required:
-      - creditorAccount
-      - endToEndIdentification
-      - instructedAmount
-      - merchantPostAuthUrl
+    description: Holds Order Details related to payment amount.
     properties:
-      creditorAccount:
-        $ref: '#/definitions/CreditorAccount'
-      creditorAgent:
-        $ref: '#/definitions/CreditorAgent'
-      debtorAccount:
-        $ref: '#/definitions/DebtorAccount'
-      debtorAgent:
-        $ref: '#/definitions/DebtorAgent'
-      endToEndIdentification:
-        type: string
-        description: Unique identification assigned by the initiating party to unambiguously identify the transaction.
-        minLength: 0
-        maxLength: 35
-      instructedAmount:
-        $ref: '#/definitions/InstructedAmount'
-      merchantPostAuthUrl:
-        type: string
-        description: The merchant url to hit post authorization step.
-        minLength: 1
-        maxLength: 2147483647
-      remittanceInformation:
-        $ref: '#/definitions/RemittanceInformation'
-      risk:
-        $ref: '#/definitions/Risk'
-    title: PaymentInitiationRequest
+      items:
+        type: array
+        description: Holds list of the line items to be returned to the TPP UI
+        items:
+          $ref: '#/definitions/Items'
+    title: OrderDetails
   PaymentRequest:
     type: object
     required:
@@ -2017,13 +1924,20 @@ definitions:
       - reference
     properties:
       amount:
-        type: string
+        type: number
         description: amount
-        pattern: '^\d{1,13}\.\d{1,5}$'
+        minimum: 0.01
+        maximum: 999999999999.99
+      bankId:
+        type: string
+        description: The bank id returned by List Banks API. This is the bank where PSU holds its account
+        minLength: 1
+        maxLength: 10
       countryCode:
         type: string
-        description: countryCode - ISO country code - indicates where customer is domiciled (ISO 3166 Alpha-2)
-        pattern: '^[A-Z]{2}$'
+        description: countryCode - ISO country code - indicates where customer is
+          domiciled (ISO 3166 Alpha-2)
+        pattern: ^[A-Z]{2}$
       currency:
         type: string
         description: transaction currency
@@ -2031,106 +1945,68 @@ definitions:
           - GBP
       email:
         type: string
-        description: Email address where payment status notifications will be sent to
-        minLength: 0
+        description: Email address where payment status notifications will be sent
+          to
         maxLength: 254
         pattern: .*@.*
+      integrationType:
+        type: string
+        description: Allows to specify if the UI integration is done via Checkout or it is Self Hosted by the merchant.
+        enum:
+        - CHECKOUT
+        - SELF_HOSTED
       language:
         type: string
-        description: 'the customers preferred language, defaults to en ISO 639-1: two-letter codes, one per language'
-        pattern: '^[a-z]{2}$'
+        description: 'the customers preferred language, defaults to en ISO 639-1:
+            two-letter codes, one per language'
+        pattern: ^[a-z]{2}$
+      merchantPostAuthUrl:
+        type: string
+        description: The merchant url to redirect PSU post authorization step
+        minLength: 1
+        maxLength: 255
+      orderDetails:
+        $ref: '#/definitions/OrderDetails'
       reference:
         type: string
-        description: Reference - a reference that can be used by our customers to link their system with Nuapay.
+        description: Reference - a reference that can be used by our customers to
+          link their system with Nuapay.
         minLength: 1
         maxLength: 35
+
     title: PaymentRequest
     example:
-      amount: '99.99'
-      currency: GBP
-      reference: reference
+      amount: 99.99
       countryCode: GB
-      language: en
+      currency: GBP
       email: client@example.com
-  PaymentRequestResponse:
-    type: object
-    required:
-      - aspspAuthUrl
-      - creationDateTime
-      - creditorAccount
-      - endToEndIdentification
-      - instructedAmount
-      - instructionIdentification
-      - paymentId
-      - risk
-      - tppPaymentReference
-      - uri
-    properties:
-      uri:
-        type: string
-        description: Uri of the payments resource.
-      tppPaymentReference:
-        type: string
-        description: The payment reference for the merchant to check on a payment request.
-      aspspAuthUrl:
-        type: string
-        description: The ASPSP url to redirect the PSU to for authorization of payment.
-      creationDateTime:
-        type: string
-        format: date-time
-        description: Date and time at which the resource was created.
-      creditorAccount:
-        description: Unambiguous identification of the account of the creditor to which a credit entry will be posted as a result of the payment transaction.
-        $ref: '#/definitions/CreditorAccount'
-      creditorAgent:
-        description: Identification of the financial institution servicing the creditor account.
-        $ref: '#/definitions/CreditorAgent'
-      debtorAccount:
-        description: Unambiguous identification of the account of the debtor to which a debit entry will be made as a result of the transaction.
-        $ref: '#/definitions/DebtorAccount'
-      debtorAgent:
-        description: Identification of the financial institution servicing the debtor account.
-        $ref: '#/definitions/DebtorAgent'
-      instructionIdentification:
-        type: string
-        description: Unique identification as assigned by an instructing party.
-      endToEndIdentification:
-        type: string
-        description: Unique identification assigned by the initiating party.
-      instructedAmount:
-        description: 'Amount of money to be moved between the debtor and creditor, before deduction of charges, expressed in the currency as ordered by the initiating party. Usage: This amount has to be transported unchanged through the transaction chain.'
-        $ref: '#/definitions/InstructedAmount'
-      remittanceInformation:
-        description: 'Information supplied to enable the matching of an entry with the items that the transfer is intended to settle, such as commercial invoices in an accountsâ€™ receivable system.'
-        $ref: '#/definitions/RemittanceInformation'
-      paymentId:
-        type: string
-        description: The payment id for the PSU to use when redirected to bank AUTH login.
-      paymentSubmissionId:
-        type: string
-        description: Unique identification as assigned by the ASPSP to uniquely identify the payment submission resource.
-      authorizationStatus:
-        type: string
-        description: payment authorization status of interest to the merchant using the server
-      paymentStatus:
-        type: string
-        description: payment status of interest to the merchant using the server
-      risk:
-        description: Risk
-        $ref: '#/definitions/Risk'
-    title: PaymentRequestResponse
-  PaymentRequestResponseEnvelope:
-    type: object
-    required:
-      - data
-      - uri
-    properties:
-      uri:
-        type: string
-        description: Uri of the queried resource.
-      data:
-        $ref: '#/definitions/PaymentRequestResponse'
-    title: PaymentRequestResponseEnvelope
+      language: en
+      reference: reference
+      orderDetails:
+        items:
+          - name: Flights Outbound
+            description: Dublin(DUB) to London(LCY) - Adult Fare
+            quantity: 2
+            amount: "50.00"
+          - name: Flights Return
+            description: Dublin(DUB) to London(LCY) - Adult Fare
+            quantity: 2
+            amount: "50.00"
+          - name: Flights Return
+            description: Dublin(DUB) to London(LCY) - Adult Fare
+            quantity: 2
+            amount: "30.00"
+          - name: Discounts
+            description: null
+            quantity: null
+            amount: "-5.00"
+          - name: Total 
+            description: null
+            quantity: null
+            amount: "125.00"
+      integrationType: SELF_HOSTED
+      merchantPostAuthUrl: "https://merchant.openbanking.com/result"
+      bankId: ybo8zd8j2q
   PaymentResponse:
     type: object
     required:
@@ -2142,11 +2018,24 @@ definitions:
       - status
     properties:
       amount:
-        type: string
+        type: number
         description: amount
+        minimum: 0.01
+        maximum: 999999999999.99
+      aspspAuthUrl:
+        type: string
+        description: The ASPSP url to redirect the PSU to for authorization of the payment.
+        minLength: 1
+        maxLength: 2048
+      bankId:
+        type: string
+        description: The bank id returned by List Banks API. This is the bank where PSU holds its account
+        minLength: 1
+        maxLength: 10
       countryCode:
         type: string
         description: countryCode - ISO country code - indicates where customer is domiciled (ISO 3166 Alpha-2)
+        pattern: ^[A-Z]{2}$
       currency:
         type: string
         description: transaction currency
@@ -2155,18 +2044,38 @@ definitions:
       email:
         type: string
         description: Email address where payment status notifications will be sent to
+        maxLength: 254
+        pattern: .*@.*
       id:
         type: string
-        description: 'id, this is used to get updates on the payment'
+        description: id, this is used to get updates on the payment
+      integrationType:
+        type: string
+        description: Allows to specify if the UI integration is done via Checkout or it is Self Hosted by the merchant.
+        enum:
+        - CHECKOUT
+        - SELF_HOSTED
       language:
         type: string
-        description: 'the customers preferred language, defaults to en ISO 639-1: two-letter codes, one per language'
+        description: 'the customers preferred language, defaults to en ISO 639-1:
+          two-letter codes, one per language'
+        pattern: ^[a-z]{2}$
+      merchantPostAuthUrl:
+        type: string
+        description: The merchant url to redirect PSU post authorization step
+        minLength: 1
+        maxLength: 255
+      orderDetails:
+        description: Holds Order Details related to payment amount.
+        $ref: '#/definitions/OrderDetails'
       reference:
         type: string
-        description: 'reference, matches that reference passed in the payment request'
+        description: reference, matches that reference passed in the payment request
+        minLength: 1
+        maxLength: 35
       status:
         type: string
-        description: 'paymentStatus, the latest payment status'
+        description: paymentStatus, the latest payment status
         enum:
           - PENDING_APPROVAL
           - REJECTED
@@ -2182,7 +2091,6 @@ definitions:
       - uri
     properties:
       data:
-        description: PaymentResponse
         $ref: '#/definitions/PaymentResponse'
       uri:
         type: string
@@ -2194,7 +2102,7 @@ definitions:
         id: ybo8zayk2q
         reference: reference
         status: PENDING_APPROVAL
-        amount: '99.99'
+        amount: 99.99
         currency: GBP
         countryCode: GB
         language: en
@@ -2208,6 +2116,7 @@ definitions:
     title: "ReversePaymentRequest"
   ReversePaymentResponse:
     type: object
+    description: ReversePaymentResponse
     required:
       - amount
       - countryCode
@@ -2217,8 +2126,10 @@ definitions:
       - status
     properties:
       amount:
-        type: string
+        type: number
         description: amount
+        minimum: 0.01
+        maximum: 999999999999.99
       countryCode:
         type: string
         description: countryCode - ISO country code - indicates where customer is domiciled (ISO 3166 Alpha-2)
@@ -2257,7 +2168,6 @@ definitions:
       - uri
     properties:
       data:
-        description: ReversePaymentResponse
         $ref: '#/definitions/ReversePaymentResponse'
       uri:
         type: string
@@ -2269,7 +2179,7 @@ definitions:
         id: ybo8zayk2q
         reference: reference
         status: REVERSED
-        amount: '99.99'
+        amount: 99.99
         currency: GBP
         countryCode: GB
         language: en
@@ -2291,41 +2201,6 @@ definitions:
         maxLength: 35
     title: ProprietaryBankTransactionCode
     description: Set of elements to fully identify a proprietary bank transaction code.
-  RemittanceInformation:
-    type: object
-    properties:
-      reference:
-        type: string
-        description: 'Unique reference, as assigned by the creditor, to unambiguously refer to the payment transaction. Usage: If available, the initiating party should provide this reference in the structured remittance information, to enable reconciliation by the creditor upon receipt of the amount of money. If the business context requires the use of a creditor reference or a payment remit identification, and only one identifier can be passed through the end-to-end chain, the creditorâ€™s reference or payment remittance identification should be quoted in the end-to-end transaction identification. OB: The Faster Payments Scheme can only accept 18 characters for the ReferenceInformation field - which is where this ISO field will be mapped.'
-        minLength: 1
-        maxLength: 35
-      unstructured:
-        type: string
-        description: 'Information supplied to enable the matching/reconciliation of an entry with the items that the payment is intended to settle, such as commercial invoices in an accountsâ€™ receivable system, in an unstructured form.'
-        minLength: 1
-        maxLength: 140
-    title: RemittanceInformation
-    description: 'Information supplied to enable the matching of an entry with the items that the transfer is intended to settle, such as commercial invoices in an accountsâ€™ receivable system.'
-  Risk:
-    type: object
-    properties:
-      deliveryAddress:
-        $ref: '#/definitions/DeliveryAddress'
-      merchantCategoryCode:
-        type: string
-        description: 'Category code conforms to ISO 18245, related to the type of services or goods the merchant provides for the transaction.'
-        minLength: 3
-        maxLength: 4
-      merchantCustomerIdentification:
-        type: string
-        description: The unique customer identifier of the PSU with the merchant.
-        minLength: 1
-        maxLength: 70
-      paymentContextCode:
-        type: string
-        description: Specifies the payment context.
-    title: Risk
-    description: Risk
   Servicer:
     type: object
     required:
@@ -2339,9 +2214,11 @@ definitions:
         maxLength: 35
       schemeName:
         type: string
-        description: 'Name of the identification scheme, in a coded form as published in an external list.'
+        description: Name of the identification scheme, in a coded form as published in an external list.
+        enum:
+          - BICFI
     title: Servicer
-    description: 'Party that manages the account on behalf of the account owner, that is manages the registration and booking of entries on the account, calculates balances on the account and provides information about the account.'
+    description: Party that manages the account on behalf of the account owner, that is manages the registration and booking of entries on the account, calculates balances on the account and provides information about the account.
   Transaction:
     type: object
     required:
@@ -2357,7 +2234,7 @@ definitions:
         maxLength: 40
       addressLine:
         type: string
-        description: 'Information that locates and identifies a specific address, as defined by postal services, that is presented in free format text.'
+        description: Information that locates and identifies a specific address, as defined by postal services, that is presented in free format text.
         minLength: 1
         maxLength: 70
       amount:
@@ -2369,7 +2246,12 @@ definitions:
       bookingDateTime:
         type: string
         format: date-time
-        description: 'Date and time when a transaction entry is posted to an account on the account servicer''s books. Usage: Booking date is the expected booking date, unless the status is booked, in which case it is the actual booking date.  All dates in the JSON payloads are represented in ISO 8601 date-time format.  All date-time fields in responses must include the timezone. An example is below: 2017-04-05T10:43:07+00:00'
+        description: 'Date and time when a transaction entry is posted to an account
+          on the account servicer''s books. Usage: Booking date is the expected booking
+          date, unless the status is booked, in which case it is the actual booking
+          date.  All dates in the JSON payloads are represented in ISO 8601 date-time
+          format.  All date-time fields in responses must include the timezone. An
+          example is below: 2017-04-05T10:43:07+00:00'
       creditDebitIndicator:
         type: string
         description: Indicates whether the transaction is a credit or a debit entry.
@@ -2387,12 +2269,12 @@ definitions:
         maxLength: 40
       transactionInformation:
         type: string
-        description: 'Further details of the transaction. This is the transaction narrative, which is unstructured text.'
+        description: Further details of the transaction. This is the transaction narrative, which is unstructured text.
         minLength: 1
         maxLength: 500
       transactionReference:
         type: string
-        description: 'Unique reference for the transaction. This reference is optionally populated, and may as an example be the FPID in the Faster Payments context.'
+        description: Unique reference for the transaction. This reference is optionally populated, and may as an example be the FPID in the Faster Payments context.
         minLength: 1
         maxLength: 35
       transactionStatus:
@@ -2404,6 +2286,15 @@ definitions:
       valueDateTime:
         type: string
         format: date-time
-        description: 'Date and time at which assets become available to the account owner in case of a credit entry, or cease to be available to the account owner in case of a debit entry.  Usage: If entry status is pending and value date is present, then the value date refers to an expected/requested value date. For entries subject to availability/float and for which availability information is provided, the value date must not be used. In this case the availability component identifies the  number of availability days.  All dates in the JSON payloads are represented in ISO 8601 date-time format.  All date-time fields in responses must include the timezone. An example is below: 2017-04-05T10:43:07+00:00'
+        description: 'Date and time at which assets become available to the account
+          owner in case of a credit entry, or cease to be available to the account
+          owner in case of a debit entry.  Usage: If entry status is pending and value
+          date is present, then the value date refers to an expected/requested value
+          date. For entries subject to availability/float and for which availability
+          information is provided, the value date must not be used. In this case the
+          availability component identifies the  number of availability days.  All
+          dates in the JSON payloads are represented in ISO 8601 date-time format.  All
+          date-time fields in responses must include the timezone. An example is below:
+          2017-04-05T10:43:07+00:00'
     title: Transaction
     description: Transaction
