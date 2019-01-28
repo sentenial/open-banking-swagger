@@ -13,8 +13,8 @@ info:
   x-logo:
     backgroundColor: '#FFFFFF'
     url: 'https://www.nuapay.com/wp-content/uploads/2018/04/nuapay.svg'
-host: 'tpp.nuapay.com'
-basePath: /
+host: 'api.nuapay.com'
+basePath: /tpp
 tags:
   - name: AISP Service
     description: |-
