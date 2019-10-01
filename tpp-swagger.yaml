@@ -580,7 +580,7 @@ definitions:
           description: ISO currency code. 
       country:
         type: string
-        description: countryCode - ISO country code - indicates where ASPSP is located (ISO 3166 Alpha-2)
+        description: countryCode - ISO country code - indicates where the Bank is located (ISO 3166 Alpha-2)
     title: Bank
   BanksResponse:
     type: object
