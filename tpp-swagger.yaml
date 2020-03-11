@@ -753,7 +753,7 @@ paths:
               returnDescription: null
               details: null
       security:
-        - MerchantApiKey:
+        - MerchantOAuth2:
           - openbanking_refund
         - MerchantApiKey: []
 securityDefinitions:
@@ -780,16 +780,6 @@ securityDefinitions:
       openbanking_pisp_read: Read Account and Payment Information access
       openbanking_refund: Payment refund access
 definitions:
-  RestResponseLink:
-    type: object
-    properties:
-      id:
-        type: string
-      resourceType:
-        type: string
-      uri:
-        type: string
-    title: RestResponseLink
   Bank:
     type: object
     required:
