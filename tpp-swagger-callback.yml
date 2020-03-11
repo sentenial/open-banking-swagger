@@ -862,7 +862,7 @@ paths:
               returnDescription: null
               details: null
       security:
-        - MerchantApiKey:
+        - MerchantOAuth2:
           - openbanking_refund
         - MerchantApiKey: []
 securityDefinitions:
@@ -879,6 +879,7 @@ securityDefinitions:
       openbanking_pisp: Payment Initiation Service Provider access
       openbanking_pisp_read: Read Account and Payment Information access
       openbanking_refund: Payment refund access
+      openbanking_callback: ASPSP Callback Forwarding access
   PartnerOAuth2:
     type: oauth2
     tokenUrl: https://api.nuapay.com/oauth/token_key
@@ -888,17 +889,8 @@ securityDefinitions:
       openbanking_pisp: Payment Initiation Service Provider access
       openbanking_pisp_read: Read Account and Payment Information access
       openbanking_refund: Payment refund access
+      openbanking_callback: ASPSP Callback Forwarding access
 definitions:
-  RestResponseLink:
-    type: object
-    properties:
-      id:
-        type: string
-      resourceType:
-        type: string
-      uri:
-        type: string
-    title: RestResponseLink
   Bank:
     type: object
     required:
