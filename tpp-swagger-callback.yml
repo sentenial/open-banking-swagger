@@ -263,7 +263,7 @@ paths:
                     uri: /payments/lybo6jobqp/refunds
                   - id: lybo6jobqp
                     resourceType: history
-                    uri: /payment/lybo6jobqp/history
+                    uri: /payments/lybo6jobqp/history
                   - id: lybo6jobqp
                     resourceType: audit
                     uri: /payments/lybo6jobqp/aspsp/audit
@@ -542,7 +542,7 @@ paths:
                     uri: /payments/lybo6jobqp/refunds
                   - id: lybo6jobqp
                     resourceType: history
-                    uri: /payment/lybo6jobqp/history
+                    uri: /payments/lybo6jobqp/history
                   - id: lybo6jobqp
                     resourceType: audit
                     uri: /payments/lybo6jobqp/aspsp/audit
@@ -603,7 +603,7 @@ paths:
           - openbanking_aisp
           - openbanking_pisp
         - MerchantApiKey: []
-  /payment/{paymentId}/history:
+  /payments/{paymentId}/history:
     get:
       tags:
         - PISP Service
@@ -639,7 +639,7 @@ paths:
             $ref: '#/definitions/PaymentHistoryResponseEnvelope'
           examples:
             application/json:
-              uri: /payment/ybo8zayk2q/history
+              uri: /payments/ybo8zayk2q/history
               data:
                 - status: PENDING
                   createDateTime: '2019-02-28T10:43:07+00:00'
