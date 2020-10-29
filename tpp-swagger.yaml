@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   description: Swagger Spec for the Nuapay TPP OpenBanking/PSD2. Provides PISP
     and Banks Endpoints
-  version: '1.7.0'
+  version: '1.9.0'
   title: Nuapay TPP API Specification
   contact:
     name: Nuapay
@@ -39,6 +39,11 @@ paths:
       produces:
         - application/json
       parameters:
+        - name: debtoraccountrequired
+          in: query
+          required: false
+          type: boolean
+          description: Allows to filter the banks that requires debtor account to be provided when initiating payment.
         - name: pagenumber
           in: query
           description: Page number
@@ -59,6 +64,9 @@ paths:
           type: array
           items:
             type: string
+            enum:
+              - EUR
+              - GBP
           collectionFormat: multi
       responses:
         200:
@@ -374,21 +382,21 @@ paths:
           items:
             type: string
             enum:
-            - PENDING
-            - PENDING_APPROVAL
-            - OAUTH_CALLBACK_COMPLETE
-            - AUTHORISED
-            - SETTLEMENT_PENDING
-            - SETTLEMENT_IN_PROGRESS
-            - SETTLEMENT_COMPLETE
-            - PAYMENT_RECEIVED
-            - TIMEOUT
-            - CONSENT_API_REJECTED
-            - DECLINED
-            - CONSENT_TIMEOUT
-            - SETTLEMENT_REJECTED
-            - UNKNOWN
-            - UNEXPECTED_ERROR
+              - PENDING
+              - PENDING_APPROVAL
+              - OAUTH_CALLBACK_COMPLETE
+              - AUTHORISED
+              - DECLINED
+              - SETTLEMENT_REJECTED
+              - SETTLEMENT_PENDING
+              - SETTLEMENT_IN_PROGRESS
+              - SETTLEMENT_COMPLETE
+              - CONSENT_API_REJECTED
+              - TIMEOUT
+              - CONSENT_TIMEOUT
+              - UNEXPECTED_ERROR
+              - UNKNOWN
+              - PAYMENT_RECEIVED
           collectionFormat: multi
         - name: payername
           in: query
@@ -435,73 +443,76 @@ paths:
           examples:
             application/json:
               uri: /payments
-              data: 
-               - id: 7zmnaqgby5
-                 uri: /payments/7zmnaqgby5
-                 endToEndIdentification: endToEndIdentification1234
-                 debtorAccount: null
-                 risk: 
-                  paymentContextCode: null
-                  merchantCategoryCode: null
-                  merchantCustomerIdentification: null
-                  deliveryAddress: null
-                 remittanceInformation: 
-                  reference: reference1234
-                  unstructured: null
-                 status: PENDING
+              data:
+               - id: ybo8zayk2q
+                 uri: /payments/ybo8zayk2q
+                 merchantId: b0zaq1klpt
+                 creationDateTime: "2019-02-28T10:43:07.00Z"
                  amount: 99.99
-                 currency: GBP
                  countryCode: GB
-                 language: en
+                 currency: GBP
                  email: client@example.com
-                 orderDetails: 
-                  items: 
-                   - name: Flights Outbound
-                     description: Dublin(DUB) to London(LCY) - Adult Fare
-                     quantity: 2
-                     amount: 50
-                   - name: Flights Return
-                     description: Dublin(DUB) to London(LCY) - Adult Fare
-                     quantity: 2
-                     amount: 50
-                   - name: Flights Return
-                     description: Dublin(DUB) to London(LCY) - Adult Fare
-                     quantity: 2
-                     amount: 30
-                   - name: Discounts
-                     description: null
-                     quantity: 0
-                     amount: -5
-                   - name: Total
-                     description: null
-                     quantity: 0
-                     amount: 125
+                 language: en
+                 remittanceInformation: 
+                     unstructured: The Remittance Information
+                 endToEndIdentification: endToEndIdentification
+                 orderDetails:
+                  items:
+                    - name: Flights Outbound
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: 50.00
+                    - name: Flights Return
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: 50.00
+                    - name: Flights Return
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: 30.00
+                    - name: Discounts
+                      description: null
+                      quantity: null
+                      amount: -5.00
+                    - name: Total 
+                      description: null
+                      quantity: null
+                      amount: 125.00
                  integrationType: CHECKOUT
                  merchantPostAuthUrl: null
                  bankId: null
+                 bankName: null
                  aspspAuthUrl: null
-                 cutOffDateTime: null
-                 expectedExecutionDateTime: null
-                 expectedSettlementDateTime: null
-                 merchantId: gabxwwv2l5
-                 creationDateTime: "2020-05-01T12:19:17.069Z"
-                 debtorBankName: null
-                 multiAuthorisation: null
-                 links: 
-                  - 
-                   id: 7zmnaqgby5
-                   resourceType: refunds
-                   uri: /payments/7zmnaqgby5/refunds
-                  - 
-                   id: 7zmnaqgby5
-                   resourceType: history
-                   uri: /payments/7zmnaqgby5/history
+                 status: PENDING_APPROVAL
+                 debtorBankName: Test Bank Name
+                 debtorAccount:
+                   identification: GB29NWBK60161331926819
+                   schemeName: IBAN
+                 links:
+                   - id: null
+                     resourceType: refunds
+                     uri: /payments/ybo8zayk2q/refunds
+                   - id: null
+                     resourceType: history
+                     uri: /payment/{paymentId}/history
               page:
                 pageNumber: 1
                 pageSize: 10
                 totalElements: 1
                 totalPages: 1
               sort: []                    
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: "T0000"
+              returnDescription: Validation errors occurred. Please see details.
+              details:
+                code: "T0002"
+                description: Field is invalid
+                field: fromdatetime
         401:
           description: Unauthorized
           schema:
@@ -578,11 +589,19 @@ paths:
           description: Create a Payment Callback Request
           required: true
           schema:
-            $ref: '#/definitions/PaymentCallbackRequest'
+            type: object
+            additionalProperties:
+              type: string
+            example:
+              code: KaIpmx
+              state: 3410742c-304d-4311-a54f-323f1f20f96f
+              id_token: eyJraWQiOiJOdWFwYXlCYW5rX0tleUlEIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjZDBlNDkxNC1jNjRlLTQyODQtYTg0ZS0yYzc2NGI3NzU5MWYiLCJhdWQiOiJ0ZXN0IiwiY19oYXNoIjoiU2VWM1ZYU3YyVHNMVXhLdVdLWE9PUSIsImFjciI6WyJ1cm46b3BlbmJhbmtpbmc6cHNkMjpzY2EiXSwic19oYXNoIjoicjNHcm53YjFzNXZYaHRwOU1oYm1zdyIsIm9wZW5iYW5raW5nX2ludGVudF9pZCI6ImNkMGU0OTE0LWM2NGUtNDI4NC1hODRlLTJjNzY0Yjc3NTkxZiIsImtpZCI6Ik51YXBheUJhbmtfS2V5SUQiLCJpc3MiOiJodHRwczpcL1wvYXBpLmFscGhhbmJhbmsuY29tIiwiZXhwIjoxNTUzMDA4MTkwLCJpYXQiOjE1NTMwMDc1OTAsIm5vbmNlIjoiODJiMTNjMzYtZTIzOC00MDA2LTkzMjQtNDJhZmQ2YjMwOTJlIiwianRpIjoiNGI4ODk3NjQtOWQwMy00YWM1LTg2MDgtOGMzZGU2NzU2N2VkIn0.fRBht6BQtqNxbUKmeoNqzWyFykTVX6zMCLcqvnPt1m665l9a8Zuwa4oaY_-2pULshjwD9yptgRdQ8KbkQ1SddwQacZYwUvzzbE1kV6GwhuwvGNU9TihPvh55eE3nY9kYJywn5m6hgC0x81m1MhMeAikanNZIia7rryB30CKxDMt0sL-5CvnFdyr2_csjuXotekC_weDsY4WNqCu5LfZhVk0IixXNiDXFxxnR9qNOjQ5fTljITWoPQ0G1KYfW3DOs4Nb23oZe8b-RxLebD9R2kBiIWh79oGOg-8RZz36FDNSn5Skt1KAz_c9bv7Vbt-au6VY1_tPdvZ8sgd44M__rZQ
         - name: Idempotency-Key
           in: header
           description: Every request will be processed only once per Idempotency-Key.  The Idempotency Key will be valid for 24 hours.
           required: false
+          x-sentenial:
+            enriched: "true"
           type: string
       responses:
         202:
@@ -658,6 +677,8 @@ paths:
               type: integer
               format: int32
               description: Number in seconds to wait
+          x-sentenial:
+            enriched: "true"
           schema:
             $ref: '#/definitions/ErrorResponse'
           examples:
@@ -692,68 +713,58 @@ paths:
             $ref: '#/definitions/PaymentResponseEnvelope'
           examples:
             application/json:
-              uri: /payments/7zmnaqgby5
-              data: 
-               id: 7zmnaqgby5
-               uri: /payments/7zmnaqgby5
-               endToEndIdentification: endToEndIdentification1234
-               debtorAccount: null
-               risk: 
-                paymentContextCode: null
-                merchantCategoryCode: null
-                merchantCustomerIdentification: null
-                deliveryAddress: null
-               remittanceInformation: 
-                reference: reference1234
-                unstructured: null
-               status: PENDING
-               amount: 99.99
-               currency: GBP
-               countryCode: GB
-               language: en
-               email: client@example.com
-               orderDetails: 
-                items: 
-                 - name: Flights Outbound
-                   description: Dublin(DUB) to London(LCY) - Adult Fare
-                   quantity: 2
-                   amount: 50
-                 - name: Flights Return
-                   description: Dublin(DUB) to London(LCY) - Adult Fare
-                   quantity: 2
-                   amount: 50
-                 - name: Flights Return
-                   description: Dublin(DUB) to London(LCY) - Adult Fare
-                   quantity: 2
-                   amount: 30
-                 - name: Discounts
-                   description: null
-                   quantity: null
-                   amount: -5
-                 - name: Total
-                   description: null
-                   quantity: null
-                   amount: 125
-               integrationType: CHECKOUT
-               merchantPostAuthUrl: null
-               bankId: null
-               aspspAuthUrl: null
-               cutOffDateTime: null
-               expectedExecutionDateTime: null
-               expectedSettlementDateTime: null
-               merchantId: gabxwwv2l5
-               creationDateTime: "2020-05-01T12:19:17.069Z"
-               debtorBankName: null
-               multiAuthorisation: null
-               links: 
-                - 
-                 id: 7zmnaqgby5
-                 resourceType: refunds
-                 uri: /payments/7zmnaqgby5/refunds
-                - 
-                 id: 7zmnaqgby5
-                 resourceType: history
-                 uri: /payments/7zmnaqgby5/history
+              uri: /payments/ybo8zayk2q
+              data:
+                id: ybo8zayk2q
+                uri: /payments/ybo8zayk2q
+                merchantId: b0zaq1klpt
+                creationDateTime: "2019-02-28T10:43:07.00Z"
+                amount: 99.99
+                countryCode: GB
+                currency: GBP
+                email: client@example.com
+                language: en
+                remittanceInformation: 
+                    unstructured: The Remittance Information
+                endToEndIdentification: endToEndIdentification
+                orderDetails:
+                  items:
+                    - name: Flights Outbound
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: 50.00
+                    - name: Flights Return
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: 50.00
+                    - name: Flights Return
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: 30.00
+                    - name: Discounts
+                      description: null
+                      quantity: null
+                      amount: -5.00
+                    - name: Total 
+                      description: null
+                      quantity: null
+                      amount: 125.00
+                integrationType: CHECKOUT
+                merchantPostAuthUrl: null
+                bankId: null
+                bankName: null
+                aspspAuthUrl: null
+                status: PENDING_APPROVAL
+                debtorAccount:
+                  identification: GB29NWBK60161331926819
+                  schemeName: IBAN
+                links:
+                  - id: null
+                    resourceType: refunds
+                    uri: /payments/ybo8zayk2q/refunds
+                  - id: null
+                    resourceType: history
+                    uri: /payment/{paymentId}/history
         401:
           description: Unauthorized
           schema:
@@ -822,9 +833,9 @@ paths:
       parameters:
         - name: paymentId
           in: path
-          description: The ID of the payment who's history you with to return
+          description: The ID of the payment for which you want to retrieve audit trail history
           required: true
-          type: string        
+          type: string
         - name: pagenumber
           in: query
           description: Page number
@@ -857,7 +868,7 @@ paths:
                 pageSize: 10
                 totalElements: 1
                 totalPages: 1
-              sort: null  
+              sort: []  
         400:
           description: Bad Request
           schema:
@@ -926,9 +937,6 @@ paths:
         - MerchantOAuth2:
           - openbanking_pisp_read
         - MerchantApiKey: []
-        - PartnerOAuth2:
-          - openbanking_pisp_read
-        - PartnerApiKey: []
   /payments/{paymentId}/refunds:
     post:
       tags:
@@ -1076,8 +1084,6 @@ paths:
       summary: List Payment Refunds
       description: List refunds using GET
       operationId: listRefundsUsingGET
-      consumes:
-        - application/json
       produces:
         - application/json
       parameters:
@@ -1189,6 +1195,18 @@ paths:
               returnCode: null
               returnDescription: null
               details: null
+        422:
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: "T0000"
+              returnDescription: Validation errors occurred. Please see details.
+              details:
+                code: "T0016"
+                description: Amount has to be greater than 0.
+                field: amount
         429:
           description: Too Many Requests
           headers:
@@ -1334,15 +1352,53 @@ securityDefinitions:
       openbanking_pisp_read: Read Account and Payment Information  access
       openbanking_callback: Open Banking callback forwarding access
 definitions:
+  Address:
+    description: Postal Address Details.
+    type: object
+    properties:
+      streetName:
+        description: Name of a street or thoroughfare.
+        type: string
+        minLength: 1
+        maxLength: 70
+      buildingNumber:
+        description: Number that identifies the position of a building on a street.
+        type: string
+        minLength: 1
+        maxLength: 16
+      postCode:
+        description: Identifier consisting of a group of letters and/or numbers that is added to a postal address to assist the sorting of mail.
+        type: string
+        minLength: 1
+        maxLength: 16
+      townName:
+        description: Name of a built-up area, with defined boundaries, and a local government.
+        type: string
+        minLength: 1
+        maxLength: 35
+      country:
+        description: ISO 3166 ALPHA2 country code.
+        type: string
+        pattern: '^[A-Z]{2,2}$'
+      addressLine:
+        items:
+          type: string
+          minLength: 1
+          maxLength: 70
+        type: array
+        description: Information that locates and identifies a specific address, as defined by postal services, presented in free format text.
+        minItems: 0
+        maxItems: 2
   Bank:
     type: object
     required:
-      - supportedCurrencies
       - id
       - uri
       - logo
       - name
+      - supportedCurrencies
       - country
+      - debtorAccountRequired
     properties:
       id:
         type: string
@@ -1365,6 +1421,9 @@ definitions:
       country:
         type: string
         description: countryCode - ISO country code - indicates where the Bank is located (ISO 3166 Alpha-2)
+      debtorAccountRequired:
+        type: boolean
+        description: TRUE if debtorAccount is required by Aspsp.
     title: Bank
   BanksResponse:
     type: object
@@ -1400,13 +1459,14 @@ definitions:
          - GBP
          - EUR
          country: GB
+         debtorAccountRequired: false
       page:
         pageNumber: 1
         pageSize: 10
         totalElements: 1
         totalPages: 1
       sort: []  
-  DebtorAccount:
+  CreditorAccount:
     type: object
     required:
       - identification
@@ -1419,12 +1479,42 @@ definitions:
         maxLength: 34
       name:
         type: string
-        description: 'Name of the account, as assigned by the account servicing institution,
+        description: "Name of the account, as assigned by the account servicing institution, in agreement with the account owner in order to provide an additional means of identification of the account. Usage - The account name is different from the account owner name. The account name is used in certain user communities to provide a means of identifying the account, in addition to the account owner's identity and the account number."
+        minLength: 1
+        maxLength: 70
+      schemeName:
+        type: string
+        description: Name of the identification scheme, in a coded form as published in an external list.
+        enum:
+          - IBAN
+          - SortCodeAccountNumber
+      secondaryIdentification:
+        type: string
+        description: Identification assigned by an institution to identify an account.
+          This identification is known by the account owner.
+        minLength: 1
+        maxLength: 34
+    title: CreditorAccount
+    description: Unambiguous identification of the account of the debtor to which a debit entry will be made as a result of the transaction.
+  DebtorAccount:
+    type: object
+    required:
+      - identification
+      - schemeName
+    properties:
+      identification:
+        type: string
+        description: Identification assigned by an institution to identify an account. This identification is known by the account owner.
+        minLength: 1
+        maxLength: 34     
+      name:
+        type: string
+        description: "Name of the account, as assigned by the account servicing institution,
           in agreement with the account owner in order to provide an additional means
           of identification of the account. Usage: The account name is different from
           the account owner name. The account name is used in certain user communities
           to provide a means of identifying the account, in addition to the account
-          ownerÃ¢â‚¬â„¢s identity and the account number.'
+          owner's identity and the account number."
         minLength: 1
         maxLength: 70
       schemeName:
@@ -1535,9 +1625,8 @@ definitions:
         minLength: 1
         maxLength: 254
       quantity:
-        type: number
+        type: integer
         format: int32
-        minimum: 1
         description: Quantiy of the particular item being purchased by the PSU.
       amount:
         type: number
@@ -1589,14 +1678,6 @@ definitions:
         items:
           $ref: '#/definitions/Items'
     title: OrderDetails
-  PaymentCallbackRequest:
-    type: object
-    additionalProperties:
-      type: string
-    example:
-      code: KaIpmx
-      state: 3410742c-304d-4311-a54f-323f1f20f96f
-      id_token: eyJraWQiOiJOdWFwYXlCYW5rX0tleUlEIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjZDBlNDkxNC1jNjRlLTQyODQtYTg0ZS0yYzc2NGI3NzU5MWYiLCJhdWQiOiJ0ZXN0IiwiY19oYXNoIjoiU2VWM1ZYU3YyVHNMVXhLdVdLWE9PUSIsImFjciI6WyJ1cm46b3BlbmJhbmtpbmc6cHNkMjpzY2EiXSwic19oYXNoIjoicjNHcm53YjFzNXZYaHRwOU1oYm1zdyIsIm9wZW5iYW5raW5nX2ludGVudF9pZCI6ImNkMGU0OTE0LWM2NGUtNDI4NC1hODRlLTJjNzY0Yjc3NTkxZiIsImtpZCI6Ik51YXBheUJhbmtfS2V5SUQiLCJpc3MiOiJodHRwczpcL1wvYXBpLmFscGhhbmJhbmsuY29tIiwiZXhwIjoxNTUzMDA4MTkwLCJpYXQiOjE1NTMwMDc1OTAsIm5vbmNlIjoiODJiMTNjMzYtZTIzOC00MDA2LTkzMjQtNDJhZmQ2YjMwOTJlIiwianRpIjoiNGI4ODk3NjQtOWQwMy00YWM1LTg2MDgtOGMzZGU2NzU2N2VkIn0.fRBht6BQtqNxbUKmeoNqzWyFykTVX6zMCLcqvnPt1m665l9a8Zuwa4oaY_-2pULshjwD9yptgRdQ8KbkQ1SddwQacZYwUvzzbE1kV6GwhuwvGNU9TihPvh55eE3nY9kYJywn5m6hgC0x81m1MhMeAikanNZIia7rryB30CKxDMt0sL-5CvnFdyr2_csjuXotekC_weDsY4WNqCu5LfZhVk0IixXNiDXFxxnR9qNOjQ5fTljITWoPQ0G1KYfW3DOs4Nb23oZe8b-RxLebD9R2kBiIWh79oGOg-8RZz36FDNSn5Skt1KAz_c9bv7Vbt-au6VY1_tPdvZ8sgd44M__rZQ
   PaginatedListPaymentResponseEnvelope:
     type: object
     properties:
@@ -1654,32 +1735,41 @@ definitions:
   PaymentHistoryEvent:
     type: object
     required:
-        - status
         - createDateTime
+        - status
     properties:
+        id: 
+          type: string
+        links:
+          type: array
+          items:      
+            $ref: '#/definitions/RestResponseLink'          
+        uri:
+          type: string
         status:
           type: string
           description: paymentStatus
           enum:
           - PENDING
-          - TIMEOUT
-          - CONSENT_API_REJECTED
           - PENDING_APPROVAL
           - OAUTH_CALLBACK_COMPLETE
           - AUTHORISED
           - DECLINED
-          - CONSENT_TIMEOUT
-          - SETTLEMENT_PENDING
           - SETTLEMENT_REJECTED
+          - SETTLEMENT_PENDING
           - SETTLEMENT_IN_PROGRESS
           - SETTLEMENT_COMPLETE
+          - CONSENT_API_REJECTED
+          - TIMEOUT
+          - CONSENT_TIMEOUT
           - UNEXPECTED_ERROR
           - UNKNOWN
           - PAYMENT_RECEIVED
         createDateTime:
           type: string
           format: date-time
-          description: 'Date and time when a status has changed. All date-time fields in responses must include the timezone. An example is below: 2019-02-28T10:43:07+00:00'
+          description: 'Date and time when a status has changed. An
+          example is below: 2019-02-28T10:43:07+00:00'
   PaymentRequest:
     type: object
     required:
@@ -1714,20 +1804,22 @@ definitions:
         type: string
         description: Email address where payment status notifications will be sent
           to
+        minLength: 1
         maxLength: 254
         pattern: .*@.*
       orderDetails:
         $ref: '#/definitions/OrderDetails'
       integrationType:
         type: string
-        description: Allows to specify if the UI integration is done via Checkout or it is Self Hosted by the merchant.
+        description: Allows to specify if the UI integration is done via Checkout, Redirect or it is Self Hosted by the merchant.
         enum:
         - CHECKOUT
         - SELF_HOSTED
         - SELF_HOSTED_CALLBACK
+        - REDIRECT
       merchantPostAuthUrl:
         type: string
-        description: The merchant url to redirect PSU post authorization step
+        description: The merchant url to redirect PSU post authorization step. The field is required for following integration types SELF_HOSTED, SELF_HOSTED_CALLBACK, REDIRECT.
         minLength: 1
         maxLength: 255
       bankId:
@@ -1742,8 +1834,25 @@ definitions:
         maxLength: 35
       remittanceInformation:
         $ref: '#/definitions/RemittanceInformation'
+      requestedExecutionDate:
+        type: string
+        format: date
+        description: Date the payment should be executed on. Defaults to current processing date. Future date allowed only for EUR payments processed by French Banks under STET standard.
       debtorAccount:
         $ref: '#/definitions/DebtorAccount'
+      debtorAddress:
+        $ref: '#/definitions/Address'
+      creditorAccount:
+        $ref: '#/definitions/CreditorAccount'
+      creditorAddress:
+        $ref: '#/definitions/Address'
+      paymentScheme:
+        type: string
+        description: Allows to select payment scheme the payment should be initiated with. Defaults to UK Faster Payments for GBP and SEPA Credit Transfer for EUR.
+        enum:
+        - UK_FASTER_PAYMENT
+        - SEPA_CREDIT_TRANSFER
+        - SEPA_INSTANT_CREDIT_TRANSFER
       risk:
         $ref: '#/definitions/Risk'
     title: PaymentRequest
@@ -1804,6 +1913,9 @@ definitions:
       id:
         type: string
         description: id, this is used to get updates on the payment
+      userInterfacePaymentId:
+        type: string
+        description: userInterfacePaymentId, this is used in UI flows to get updates on the payment
       uri:
         type: string
         description: Location of the resource
@@ -1827,19 +1939,19 @@ definitions:
           - SETTLEMENT_PENDING
           - SETTLEMENT_IN_PROGRESS
           - SETTLEMENT_COMPLETE
-          - PAYMENT_RECEIVED
           - CONSENT_API_REJECTED
           - TIMEOUT
           - CONSENT_TIMEOUT
           - UNEXPECTED_ERROR
           - UNKNOWN
+          - PAYMENT_RECEIVED
       amount:
         type: number
         description: Amount of the payment
         minimum: 0.01
         maximum: 999999999999.99
         exclusiveMinimum: false
-        exclusiveMaximum: false
+        exclusiveMaximum: false    
       currency:
         type: string
         description: Transaction currency
@@ -1858,6 +1970,7 @@ definitions:
       email:
         type: string
         description: Email address where payment status notifications will be sent to
+        minLength: 1
         maxLength: 254
         pattern: .*@.*
       orderDetails:
@@ -1865,14 +1978,15 @@ definitions:
         $ref: '#/definitions/OrderDetails'
       integrationType:
         type: string
-        description: Allows to specify if the UI integration is done via Checkout or it is Self Hosted by the merchant.
+        description: Allows to specify if the UI integration is done via Checkout, Redirect or it is Self Hosted by the merchant.
         enum:
         - CHECKOUT
         - SELF_HOSTED
         - SELF_HOSTED_CALLBACK
+        - REDIRECT
       merchantPostAuthUrl:
         type: string
-        description: The merchant url to redirect PSU post authorization step
+        description: The merchant url to redirect PSU post authorization step. The field is required for following integration types SELF_HOSTED, SELF_HOSTED_CALLBACK, REDIRECT.
         minLength: 1
         maxLength: 255
       bankId:
@@ -1882,14 +1996,20 @@ definitions:
         maxLength: 10
       aspspAuthUrl:
         type: string
-        description: The ASPSP url to redirect the PSU to for authorization of the payment.
+        description: The ASPSP url to redirect the PSU to for authorization of the payment
         minLength: 1
         maxLength: 2048
       endToEndIdentification:
         type: string
-        description:  Unique identification assigned by the initiating party to unambiguously identify the transaction. 
+        description:  Unique identification assigned by the initiating party to unambiguously identify the transaction 
         minLength: 1
         maxLength: 35
+      remittanceInformation:
+        $ref: '#/definitions/RemittanceInformation'
+      requestedExecutionDate:
+        type: string
+        format: date
+        description: Date that the payment has been requested to be executed on.
       debtorBankName:
         type: string
         description: The name of the debtor bank
@@ -1897,8 +2017,19 @@ definitions:
         maxLength: 70
       debtorAccount:
         $ref: '#/definitions/DebtorAccount'
-      remittanceInformation:
-        $ref: '#/definitions/RemittanceInformation'
+      debtorAddress:
+        $ref: '#/definitions/Address'
+      creditorAccount:
+        $ref: '#/definitions/CreditorAccount'
+      creditorAddress:
+        $ref: '#/definitions/Address'
+      paymentScheme:
+        type: string
+        description: Allows to select payment scheme the payment should be initiated with. Defaults to UK Faster Payments for GBP and SEPA Credit Transfer for EUR.
+        enum:
+        - UK_FASTER_PAYMENT
+        - SEPA_CREDIT_TRANSFER
+        - SEPA_INSTANT_CREDIT_TRANSFER
       risk:
         $ref: '#/definitions/Risk'
       cutOffDateTime:
@@ -1930,81 +2061,80 @@ definitions:
         type: string
         description: Holds resource uri.
       data:
-        $ref: '#/definitions/PaymentResponse'
+        $ref: '#/definitions/PaymentResponse'    
     title: PaymentResponseEnvelope
     example:
-        uri: /payments/re27gry2dw
-        data: 
+      uri: /payments/re27gry2dw
+      data: 
+       id: re27gry2dw
+       uri: /payments/re27gry2dw
+       endToEndIdentification: endToEndIdentification123
+       debtorAccount: 
+        identification: 60161331926819
+        name: null
+        schemeName: SortCodeAccountNumber
+        secondaryIdentification: null
+       risk: 
+        paymentContextCode: Other
+        merchantCategoryCode: null
+        merchantCustomerIdentification: null
+        deliveryAddress: null
+       remittanceInformation: 
+        reference: reference123
+        unstructured: null
+       status: PENDING_APPROVAL
+       amount: 99.99
+       currency: GBP
+       countryCode: GB
+       language: en
+       email: client@example.com
+       orderDetails: 
+        items: 
+         - name: Flights Outbound
+           description: Dublin(DUB) to London(LCY) - Adult Fare
+           quantity: 2
+           amount: 50
+         - name: Flights Return
+           description: Dublin(DUB) to London(LCY) - Adult Fare
+           quantity: 2
+           amount: 50
+         - name: Flights Return
+           description: Dublin(DUB) to London(LCY) - Adult Fare
+           quantity: 2
+           amount: 30
+         - name: Discounts
+           description: null
+           quantity: 0
+           amount: -5
+         - name: Total
+           description: null
+           quantity: 0
+           amount: 125
+       integrationType: SELF_HOSTED
+       merchantPostAuthUrl: https://merchant.openbanking.com/result
+       bankId: lyboxy9bqp
+       aspspAuthUrl: https://any-aspsp.com/openbanking/authorize?response_type=code+id_token&scope=openid+payments&client_id=377aaa6a-70bf-4e95-ac19-2bac5270bacd&redirect_uri=https%3A%2F%2Fapi.nuapay.com%2Ftpp%2Fpayment-requests%2Foauth&state=df78b5f6-12c0-4646-b47c-4362217acb0a&nonce=bea92693-19da-4609-858e-86c79e908a08&request=eyJraWQiOiI2QlJZamgtc0VRUTNmNWlzc0lxWU9WNGNXdVUiLCJ0eXAiOiJKV1QiLCJhbGciOiJQUzI1NiJ9.eyJpc3MiOiIzNzdhYWE2YS03MGJmLTRlOTUtYWMxOS0yYmFjNTI3MGJhY2QiLCJyZXNwb25zZV90eXBlIjoiY29kZSBpZF90b2tlbiIsIm5vbmNlIjoiYmVhOTI2OTMtMTlkYS00NjA5LTg1OGUtODZjNzllOTA4YTA4IiwiY2xpZW50X2lkIjoiMzc3YWFhNmEtNzBiZi00ZTk1LWFjMTktMmJhYzUyNzBiYWNkIiwibWF4X2FnZSI6ODY0MDAsImF1ZCI6Imh0dHBzOlwvXC9hdXRob3Jpc2UtYXBpLmxsb3lkc2JhbmsuY28udWtcL3Byb2QwMVwvY2hhbm5lbFwvbHlkcyIsInNjb3BlIjoib3BlbmlkIHBheW1lbnRzIiwiY2xhaW1zIjp7InVzZXJpbmZvIjp7Im9wZW5iYW5raW5nX2ludGVudF9pZCI6eyJ2YWx1ZSI6IjY0YWQ5NWEwLWUzMWYtNGNiOC04NjM3LTdjOGRmOTc3MTJmOSIsImVzc2VudGlhbCI6dHJ1ZX19LCJpZF90b2tlbiI6eyJvcGVuYmFua2luZ19pbnRlbnRfaWQiOnsidmFsdWUiOiI2NGFkOTVhMC1lMzFmLTRjYjgtODYzNy03YzhkZjk3NzEyZjkiLCJlc3NlbnRpYWwiOnRydWV9LCJhY3IiOnsiZXNzZW50aWFsIjp0cnVlLCJ2YWx1ZXMiOlsidXJuOm9wZW5iYW5raW5nOnBzZDI6c2NhIiwidXJuOm9wZW5iYW5raW5nOnBzZDI6Y2EiXX19fSwicmVkaXJlY3RfdXJpIjoiaHR0cHM6XC9cL2FwaS5udWFwYXkuY29tXC90cHBcL3BheW1lbnQtcmVxdWVzdHNcL29hdXRoIiwic3RhdGUiOiJkZjc4YjVmNi0xMmMwLTQ2NDYtYjQ3Yy00MzYyMjE3YWNiMGEiLCJleHAiOjE1NzU0NTg3MTYsImlhdCI6MTU3NTQ1ODQxNiwianRpIjoiNDQyYmY4N2YtYzIxNC00NjgxLTk3ODYtZjIwZGM1YjIzOWYxIn0.IyeHKQQeU6x32CdUllkskLFWEjkJZKzvp8D4ZOwtlN3v32qmbh4hkGtwNilqZetqqq1ESB1InzfyAlb5S3GyZ_1pTV5UmFqsY60w4jIvSVQXmxKyCYIDrdgTvfa3IYOtA3vStpRpnHyXZfke7mBLGM0nn3YLEmujQ88T1kzq8v9rKTUKwgAE-NYLsYnXNg8dNlrl_lvXVou-J26keS5EaYMVSwHRXcZ8Vp51Hro5L3Py5KyG270RL-7AfJCrEOcvwKbHWOYthoZj1FcuuJWoCT80H1rtkw80vI8QpaQHhp8xYOGft4n6uf2WBhUVb9eBrl9B0GtWe3opBeFXzOtKyg
+       cutOffDateTime: null
+       expectedExecutionDateTime: null
+       expectedSettlementDateTime: null
+       merchantId: gabxwwv2l5
+       creationDateTime: "2020-05-01T08:25:29.291Z"
+       debtorBankName: Bank Name
+       multiAuthorisation: 
+        status: null
+        numberRequired: null
+        numberReceived: null
+        lastUpdateDateTime: null
+        expirationDateTime: null
+       links: 
+        - 
          id: re27gry2dw
-         uri: /payments/re27gry2dw
-         endToEndIdentification: endToEndIdentification123
-         debtorAccount: 
-          identification: 60161331926819
-          name: null
-          schemeName: SortCodeAccountNumber
-          secondaryIdentification: null
-        risk:
-          paymentContextCode: Other
-          merchantCategoryCode: null
-          merchantCustomerIdentification: null
-          deliveryAddress: null
-        remittanceInformation:
-          reference: reference123
-          unstructured: null
-        status: PENDING_APPROVAL
-        amount: 99.99
-        currency: GBP
-        countryCode: GB
-        language: en
-        email: client@example.com
-        orderDetails:
-          items:
-            - name: Flights Outbound
-              description: Dublin(DUB) to London(LCY) - Adult Fare
-              quantity: 2
-              amount: 50
-            - name: Flights Return
-              description: Dublin(DUB) to London(LCY) - Adult Fare
-              quantity: 2
-              amount: 50
-            - name: Flights Return
-              description: Dublin(DUB) to London(LCY) - Adult Fare
-              quantity: 2
-              amount: 30
-            - name: Discounts
-              description: null
-              quantity: null
-              amount: -5
-            - name: Total
-              description: null
-              quantity: null
-              amount: 125
-        integrationType: SELF_HOSTED
-        merchantPostAuthUrl: https://merchant.openbanking.com/result
-        bankId: lyboxy9bqp
-        aspspAuthUrl: https://any-aspsp.com/openbanking/authorize?response_type=code+id_token&scope=openid+payments&client_id=377aaa6a-70bf-4e95-ac19-2bac5270bacd&redirect_uri=https%3A%2F%2Fapi.nuapay.com%2Ftpp%2Fpayment-requests%2Foauth&state=df78b5f6-12c0-4646-b47c-4362217acb0a&nonce=bea92693-19da-4609-858e-86c79e908a08&request=eyJraWQiOiI2QlJZamgtc0VRUTNmNWlzc0lxWU9WNGNXdVUiLCJ0eXAiOiJKV1QiLCJhbGciOiJQUzI1NiJ9.eyJpc3MiOiIzNzdhYWE2YS03MGJmLTRlOTUtYWMxOS0yYmFjNTI3MGJhY2QiLCJyZXNwb25zZV90eXBlIjoiY29kZSBpZF90b2tlbiIsIm5vbmNlIjoiYmVhOTI2OTMtMTlkYS00NjA5LTg1OGUtODZjNzllOTA4YTA4IiwiY2xpZW50X2lkIjoiMzc3YWFhNmEtNzBiZi00ZTk1LWFjMTktMmJhYzUyNzBiYWNkIiwibWF4X2FnZSI6ODY0MDAsImF1ZCI6Imh0dHBzOlwvXC9hdXRob3Jpc2UtYXBpLmxsb3lkc2JhbmsuY28udWtcL3Byb2QwMVwvY2hhbm5lbFwvbHlkcyIsInNjb3BlIjoib3BlbmlkIHBheW1lbnRzIiwiY2xhaW1zIjp7InVzZXJpbmZvIjp7Im9wZW5iYW5raW5nX2ludGVudF9pZCI6eyJ2YWx1ZSI6IjY0YWQ5NWEwLWUzMWYtNGNiOC04NjM3LTdjOGRmOTc3MTJmOSIsImVzc2VudGlhbCI6dHJ1ZX19LCJpZF90b2tlbiI6eyJvcGVuYmFua2luZ19pbnRlbnRfaWQiOnsidmFsdWUiOiI2NGFkOTVhMC1lMzFmLTRjYjgtODYzNy03YzhkZjk3NzEyZjkiLCJlc3NlbnRpYWwiOnRydWV9LCJhY3IiOnsiZXNzZW50aWFsIjp0cnVlLCJ2YWx1ZXMiOlsidXJuOm9wZW5iYW5raW5nOnBzZDI6c2NhIiwidXJuOm9wZW5iYW5raW5nOnBzZDI6Y2EiXX19fSwicmVkaXJlY3RfdXJpIjoiaHR0cHM6XC9cL2FwaS5udWFwYXkuY29tXC90cHBcL3BheW1lbnQtcmVxdWVzdHNcL29hdXRoIiwic3RhdGUiOiJkZjc4YjVmNi0xMmMwLTQ2NDYtYjQ3Yy00MzYyMjE3YWNiMGEiLCJleHAiOjE1NzU0NTg3MTYsImlhdCI6MTU3NTQ1ODQxNiwianRpIjoiNDQyYmY4N2YtYzIxNC00NjgxLTk3ODYtZjIwZGM1YjIzOWYxIn0.IyeHKQQeU6x32CdUllkskLFWEjkJZKzvp8D4ZOwtlN3v32qmbh4hkGtwNilqZetqqq1ESB1InzfyAlb5S3GyZ_1pTV5UmFqsY60w4jIvSVQXmxKyCYIDrdgTvfa3IYOtA3vStpRpnHyXZfke7mBLGM0nn3YLEmujQ88T1kzq8v9rKTUKwgAE-NYLsYnXNg8dNlrl_lvXVou-J26keS5EaYMVSwHRXcZ8Vp51Hro5L3Py5KyG270RL-7AfJCrEOcvwKbHWOYthoZj1FcuuJWoCT80H1rtkw80vI8QpaQHhp8xYOGft4n6uf2WBhUVb9eBrl9B0GtWe3opBeFXzOtKyg
-        cutOffDateTime: null
-        expectedExecutionDateTime: null
-        expectedSettlementDateTime: null
-        merchantId: gabxwwv2l5
-        creationDateTime: "2020-05-01T08:25:29.291Z"
-        debtorBankName: Bank Name
-        multiAuthorisation:
-          status: null
-          numberRequired: null
-          numberReceived: null
-          lastUpdateDateTime: null
-          expirationDateTime: null
-        links: 
-         - 
-          id: re27gry2dw
-          resourceType: refunds
-          uri: "/payments/re27gry2dw/refunds"
-         - 
-          id: re27gry2dw
-          resourceType: history
-          uri: "/payments/re27gry2dw/history"
-
+         resourceType: refunds
+         uri: "/payments/re27gry2dw/refunds"
+        - 
+         id: re27gry2dw
+         resourceType: history
+         uri: "/payments/re27gry2dw/history"
   PaymentRefundRequest:
     type: object
     required:
@@ -2031,7 +2161,7 @@ definitions:
           - EUR   
       endToEndIdentification:
         type: string
-        description:  Unique identification assigned by the initiating party to unambiguously identify the transaction. 
+        description: Unique identification assigned by the initiating party to unambiguously identify the transaction. Note that the field length is limited to 31 characters for payments in GBP currency, processed via UK Faster Payments scheme
         minLength: 1
         maxLength: 35      
       remittanceInformation:
@@ -2082,11 +2212,11 @@ definitions:
       creationDateTime:
         type: string
         format: date-time
-        description: 'Date and time when refund was created. All date-time fields in responses must include the timezone. An example is below: 2019-02-28T10:43:07+00:00'
+        description: 'Date and time when refund was created.'
       lastUpdateDateTime:
         type: string
         format: date-time
-        description: 'Date and time when refund was last updated. All date-time fields in responses must include the timezone. An example is below: 2019-02-28T10:43:07+00:00'
+        description: 'Date and time when refund was last updated.'
       status:
         type: string
         description: paymentStatus, the latest payment status
@@ -2129,21 +2259,21 @@ definitions:
     properties:
       reference:
         type: string
-        description: 'Unique reference, as assigned by the creditor, to unambiguously
+        description: "Unique reference, as assigned by the creditor, to unambiguously
           refer to the payment transaction.  Usage: If available, the initiating party
           should provide this reference in the structured remittance information,
           to enable reconciliation by the creditor upon receipt of the amount of money.
           If the business context requires the use of a creditor reference or a payment
           remit identification, and only one identifier can be passed through the
-          end-to-end chain, the creditorÃ¢â‚¬â„¢s reference or payment remittance identification
+          end-to-end chain, the creditor's reference or payment remittance identification
           should be quoted in the end-to-end transaction identification. OB: The Faster
           Payments Scheme can only accept 18 characters for the ReferenceInformation
-          field - which is where this ISO field will be mapped.'
+          field - which is where this ISO field will be mapped."
         minLength: 1
         maxLength: 35
       unstructured:
         type: string
-        description: Information supplied to enable the matching/reconciliation of an entry with the items that the payment is intended to settle, such as commercial invoices in an accounts receivable system, in an unstructured form.
+        description: Information supplied to enable the matching/reconciliation of an entry with the items that the payment is intended to settle, such as commercial invoices in an accounts receivable system, in an unstructured form. 120 characters are available for client use. 20 characters are reserved for internal use.
         minLength: 1
         maxLength: 140
     title: RemittanceInformation
@@ -2210,3 +2340,4 @@ definitions:
       uri:
         type: string
         description: Resource URI
+        
