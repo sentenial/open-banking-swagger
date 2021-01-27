@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   description: Swagger Spec for the Nuapay TPP OpenBanking/PSD2. Provides PISP
     and Banks Endpoints
-  version: '1.9.0'
+  version: '1.11.0'
   title: Nuapay TPP API Specification
   contact:
     name: Nuapay
@@ -196,6 +196,16 @@ paths:
           description: Every request will be processed only once per Idempotency-Key.  The Idempotency Key will be valid for 24 hours.
           required: false
           type: string
+        - name: PSU-ID
+          in: header
+          description: Client ID of the PSU in the ASPSP client interface.
+          required: false
+          type: string
+        - name: Customer-IP-Address
+          in: header
+          description: The PSU's IP address if the PSU is currently logged in with the TPP.
+          required: false
+          type: string
       responses:
         201:
           description: Created
@@ -372,6 +382,25 @@ paths:
         - name: todatetime
           in: query
           description: Submission to date time in the format, 'yyyy-MM-dd'T'HH:mm:ss', maximum date from/to date range is 30 days. If neither from/to date is provided returns results for the last 30 days.
+          required: false
+          type: string
+        - name: fromamount
+          in: query
+          description: When provided only payments with amount equal or higher than provided amount will be returned
+          required: false
+          type: number
+          minimum: 0
+          maximum: 999999999.99
+        - name: toamount
+          in: query
+          description: When provided only payments with amount equal or smaller than  provided amount will be returned
+          required: false
+          type: number
+          minimum: 0
+          maximum: 999999999.99
+        - name: userinterfacepaymentid
+          in: query
+          description: This is used in UI flows to get payment details. Applicable for payments created with REDIRECT, CHECKOUT integration type.
           required: false
           type: string
         - name: paymentstatus
@@ -1092,6 +1121,30 @@ paths:
           description: The ID of the payment for which you want to list refunds
           required: true
           type: string
+        - name: fromcreationdatetime
+          in: query
+          description: Submission from date time in the format, 'yyyy-MM-dd'T'HH:mm:ss', maximum create date from/to create date range is 30 days. If neither from/to date is provided returns results for the last 30 days.
+          required: false
+          type: string
+        - name: tocreationdatetime
+          in: query
+          description: Submission to date time in the format, 'yyyy-MM-dd'T'HH:mm:ss', maximum create date from/to create date range is 30 days. If neither from/to date is provided returns results for the last 30 days.
+          required: false
+          type: string
+        - name: fromrefundamount
+          in: query
+          description: When provided only payments with amount equal or higher than provided amount will be returned
+          required: false
+          type: number
+          minimum: 0
+          maximum: 999999999.99
+        - name: torefundamount
+          in: query
+          description: When provided only payments with amount equal or smaller than  provided amount will be returned
+          required: false
+          type: number
+          minimum: 0
+          maximum: 999999999.99
         - name: refundstatus
           in: query
           description: A number of statuses can be queried within a single request by providing multiple occurences of the parameter. If not provided all statuses will be returned
@@ -1653,8 +1706,7 @@ definitions:
         type: integer
         format: int32
       numberReceived:
-        description: Number of authorisations required for payment order (total required at
-          the start of the multi authorisation journey).
+        description: Number of authorisations received.
         type: integer
         format: int32
       lastUpdateDateTime:
