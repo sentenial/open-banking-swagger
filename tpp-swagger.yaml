@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   description: Swagger Spec for the Nuapay TPP OpenBanking/PSD2. Provides PISP
     and Banks Endpoints
-  version: '1.11.0'
+  version: '1.12.1'
   title: Nuapay TPP API Specification
   contact:
     name: Nuapay
@@ -850,6 +850,180 @@ paths:
         - MerchantOAuth2:
           - openbanking_pisp
         - MerchantApiKey: []
+    patch:
+      tags:
+        - PISP Service
+      summary: Set Bank Id and Submit 
+      description: Set Bank Id and Submit
+      operationId: setBankIdForPaymentUsingPATCH
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: paymentId
+          in: path
+          description: The ID of the payment that you want to retry
+          required: true
+          type: string
+        - in: body
+          name: setBankForPayment
+          description: Set Bank For Payment Request
+          required: true
+          schema:
+            $ref: '#/definitions/SetBankPaymentRequest'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/PaymentResponseEnvelope'
+          examples:
+            application/json:
+              uri: /payments/ybo8zayk2q
+              data:
+                id: ybo8zayk2q
+                uri: /payments/ybo8zayk2q
+                merchantId: b0zaq1klpt
+                creationDateTime: "2019-02-28T10:43:07.00Z"               
+                amount: 99.99
+                countryCode: GB
+                currency: GBP
+                email: client@example.com
+                language: en
+                remittanceInformation: 
+                    unstructured: The Remittance Information
+                endToEndIdentification: endToEndIdentification
+                orderDetails:
+                  items:
+                    - name: Flights Outbound
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: 50.00
+                    - name: Flights Return
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: 50.00
+                    - name: Flights Return
+                      description: Dublin(DUB) to London(LCY) - Adult Fare
+                      quantity: 2
+                      amount: 30.00
+                    - name: Discounts
+                      description: null
+                      quantity: null
+                      amount: -5.00
+                    - name: Total 
+                      description: null
+                      quantity: null
+                      amount: 125.00
+                integrationType: CHECKOUT
+                merchantPostAuthUrl: null
+                bankId: lyboxy9bqp
+                bankName: Nuapay
+                aspspAuthUrl: null
+                status: PENDING_APPROVAL
+                debtorAccount:
+                  identification: GB29NWBK60161331926819
+                  schemeName: IBAN
+                links:
+                  - id: null
+                    resourceType: refunds
+                    uri: /payments/ybo8zayk2q/refunds
+                  - id: null
+                    resourceType: history
+                    uri: /payment/{paymentId}/history
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: "T0000"
+              returnDescription: Validation errors occurred. Please see details.
+              details:
+                code: "T0004"
+                description: Field is invalid
+                field: bankId
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null            
+        403:
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null            
+        404:
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null
+        405:
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null            
+        415:
+          description: Unsupported Media Type
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null            
+        422:
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: "T0000"
+              returnDescription: Validation errors occurred. Please see details.
+              details:
+               -
+                code: "TBD"
+                description: The payment can't be processed with provided bank.
+                field: bankId
+               -
+                code: "TBD"
+                description: Bank cannot be found.
+                field: bankId
+        429:
+          description: Too Many Requests
+          x-sentenial:
+            enriched: "true"
+          headers:
+            Retry-After:
+              type: integer
+              format: int32
+              description: Number in seconds to wait
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null
+      security:
+        - MerchantOAuth2:
+            - openbanking_pisp
   /payments/{paymentId}/history:
     get:
       tags:
@@ -2392,4 +2566,17 @@ definitions:
       uri:
         type: string
         description: Resource URI
-        
+  SetBankPaymentRequest:
+    type: object
+    required:
+      - bankId
+    properties:
+      bankId:
+        type: string
+        description: The bank id returned by List Banks API. This is the bank where PSU holds its account
+        minLength: 1
+        maxLength: 10
+      debtorAccount:
+        $ref: '#/definitions/DebtorAccount'
+    example:
+      bankId: ybo8zd8j2q
