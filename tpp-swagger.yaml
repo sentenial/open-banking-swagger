@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   description: Swagger Spec for the Nuapay TPP OpenBanking/PSD2. Provides PISP
     and Banks Endpoints
-  version: '1.12.1'
+  version: '1.13.0'
   title: Nuapay TPP API Specification
   contact:
     name: Nuapay
@@ -853,8 +853,8 @@ paths:
     patch:
       tags:
         - PISP Service
-      summary: Set Bank Id and Submit 
-      description: Set Bank Id and Submit
+      summary:  Retry Payment 
+      description: Retry Payment
       operationId: setBankIdForPaymentUsingPATCH
       consumes:
         - application/json
@@ -868,7 +868,7 @@ paths:
           type: string
         - in: body
           name: setBankForPayment
-          description: Set Bank For Payment Request
+          description: Retry Payment Request
           required: true
           schema:
             $ref: '#/definitions/SetBankPaymentRequest'
@@ -1692,7 +1692,7 @@ definitions:
         pageSize: 10
         totalElements: 1
         totalPages: 1
-      sort: []  
+      sort: []
   CreditorAccount:
     type: object
     required:
@@ -1722,7 +1722,7 @@ definitions:
         minLength: 1
         maxLength: 34
     title: CreditorAccount
-    description: Unambiguous identification of the account of the debtor to which a debit entry will be made as a result of the transaction.
+    description: Unambiguous identification of the account of the creditor to which a credit entry will be made as a result of the transaction.
   DebtorAccount:
     type: object
     required:
@@ -1919,7 +1919,7 @@ definitions:
           type: string
       uri:
         type: string
-        description: resource Uri
+        description: resource Uri       
   PaymentRefundListResponseEnvelope:
     type: object
     required:
@@ -2058,6 +2058,14 @@ definitions:
         description:  Unique identification assigned by the initiating party to unambiguously identify the transaction.
         minLength: 1
         maxLength: 35
+      paymentTimeout:
+        type: integer
+        format: int32
+        description: A time in which the PSU can authorise the payment in seconds
+        minimum: 1
+        maximum: 7776000
+        exclusiveMinimum: false
+        exclusiveMaximum: false
       remittanceInformation:
         $ref: '#/definitions/RemittanceInformation'
       requestedExecutionDate:
@@ -2135,6 +2143,7 @@ definitions:
       - creationDateTime
       - uri
       - status
+      - paymentTimeout
     properties:
       id:
         type: string
@@ -2270,6 +2279,14 @@ definitions:
         type: string
         format: date-time
         description: Expected settlement date and time for the payment resource.
+      paymentTimeout:
+        type: integer
+        format: int32
+        description: A time in which the PSU can authorise the payment in seconds
+        minimum: 1
+        maximum: 7776000
+        exclusiveMinimum: false
+        exclusiveMaximum: false
       multiAuthorisation:
         $ref: '#/definitions/MultiAuthorisation'
       links:
