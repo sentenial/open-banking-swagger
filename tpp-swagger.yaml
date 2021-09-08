@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   description: Swagger Spec for the Nuapay TPP OpenBanking/PSD2. Provides PISP
     and Banks Endpoints
-  version: '1.13.0'
+  version: '1.14.4'
   title: Nuapay TPP API Specification
   contact:
     name: Nuapay
@@ -29,6 +29,215 @@ tags:
       - Initiate payment requests in Open Banking
       - Retrieve the status of a previously initiated payment request
 paths:
+  /bankfamilies:
+    get:
+      tags:
+        - Bank Service
+      summary: View Bank Families
+      description: Get list of Bank Families
+      operationId: getBankFamiliesUsingGET
+      produces:
+        - application/json
+      parameters:
+        - name: pagenumber
+          in: query
+          description: Page number
+          required: false
+          type: integer
+          default: 1
+          format: int32
+        - name: pagesize
+          in: query
+          description: Page size
+          required: false
+          type: integer
+          default: 20
+          format: int32 
+        - name: supportedcurrencies
+          in: query
+          required: false
+          type: array
+          items:
+            type: string
+            enum:
+              - EUR
+              - GBP
+          collectionFormat: multi
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/PaginatedListBankFamiliesResponseEnvelope'
+          examples:
+            application/json:
+              uri: /bankFamilies
+              data: 
+                - id: 8ww64y0phx
+                  uri: /bankFamilies/8ww64y0phx
+                  name: Nuapay France
+                  logo: https://www.nuapay.com/wp-content/uploads/2018/04/nuapay.svg
+                  supportedCurrencies:
+                  - EUR
+                - id: 1xf48y2zds
+                  uri: /bankFamilies/1xf48y2zds
+                  name: Nuapay UK
+                  logo: https://www.nuapay.com/wp-content/uploads/2018/04/nuapay.svg
+                  supportedCurrencies:
+                  - GBP      
+              page:
+                pageNumber: 1
+                pageSize: 10
+                totalElements: 2
+                totalPages: 1
+              sort: []             
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: "T0000"
+              returnDescription: Validation errors occurred. Please see details.
+              details:
+                code: "T0001"
+                description: Page  is invalid
+                field: page          
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null                            
+        403:
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null                            
+        405:
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null                            
+        429:
+          description: Too Many Requests
+          x-sentenial:
+            enriched: "true"
+          headers:
+            Retry-After:
+              type: integer
+              format: int32
+              description: Number in seconds to wait
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null
+      security:
+        - MerchantOAuth2:
+          - openbanking_aisp
+          - openbanking_pisp
+        - MerchantApiKey: []
+        - PartnerOAuth2:
+          - openbanking_aisp
+          - openbanking_pisp
+        - PartnerApiKey: []
+  /bankfamilies/{bankfamilyId}:
+    get:
+      tags:
+        - Bank Service
+      summary: View Bank Family
+      description: View Bank Family Details
+      operationId: getBankFamilyUsingGET
+      produces:
+        - application/json
+      parameters:
+        - name: bankfamilyId
+          in: path
+          description: Bank Family id returned by Get Bank Families endpoint.
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/BankFamilyResponseEnvelope'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: "T0000"
+              returnDescription: Validation errors occurred. Please see details.
+              details:
+                code: "T0001"
+                description: Page  is invalid
+                field: page          
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null                            
+        403:
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null                            
+        405:
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null                            
+        429:
+          description: Too Many Requests
+          x-sentenial:
+            enriched: "true"
+          headers:
+            Retry-After:
+              type: integer
+              format: int32
+              description: Number in seconds to wait
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: null
+              returnDescription: null
+              details: null          
+      security:
+        - MerchantOAuth2:
+          - openbanking_aisp
+          - openbanking_pisp
+        - MerchantApiKey: []
+        - PartnerOAuth2:
+          - openbanking_aisp
+          - openbanking_pisp
+        - PartnerApiKey: [] 
   /banks:
     get:
       tags:
@@ -68,6 +277,16 @@ paths:
               - EUR
               - GBP
           collectionFormat: multi
+        - name: bankfamilyid
+          in: query
+          description: Allows filtering by Bank Family via the Bank Family Id.
+          required: false
+          type: string
+        - name: excludebankfamily
+          in: query
+          description: Allows filtering by Banks without an associated Bank Family.
+          required: false
+          type: boolean          
       responses:
         200:
           description: OK
@@ -1651,7 +1870,38 @@ definitions:
       debtorAccountRequired:
         type: boolean
         description: TRUE if debtorAccount is required by Aspsp.
+      bankMetaData:
+        description: Array containing additional bank meta data, includes parameters that are either required, optional or not supported at a specific bank
+        $ref: '#/definitions/BankMetaData'        
+      links:
+        type: array
+        items:      
+          $ref: '#/definitions/RestResponseLink'        
     title: Bank
+  BankMetaData:
+    type: object
+    properties:
+      debtorAddress:
+        type: string
+        description: Indicates if 'Debtor Address' is required by the bank. Returns either, 'required', 'optional' or 'notSupported'.
+      creditorAddress:
+        type: string
+        description: Indicates if 'Creditor Address' is required by the bank. Returns either, 'required', 'optional' or 'notSupported'.
+      remittanceInformation:
+        type: string
+        description: Indicates if 'Remittance Information' is required by the bank. Returns either, 'required', 'optional' or 'notSupported'.
+      psuId:
+        type: string
+        description: Indicates if 'PSU-ID' is required by the bank. Returns either, 'required', 'optional' or 'notSupported'.
+      customerIpAddress:
+        type: string
+        description: Indicates if 'Customer IP Address' is required by the bank. Returns either, 'required', 'optional' or 'notSupported'.
+      minimumPaymentValue:
+        type: number
+        description: Indicates the minimum payment value accepted by the bank. A value of 0.00 indicates this parameter is not supported by the bank. 
+      maximumPaymentValue:
+        type: number
+        description: Indicates the maximum payment value accepted by the bank. A value of 0.00 indicates this parameter is not supported by the bank.
   BanksResponse:
     type: object
     required:
@@ -1687,12 +1937,77 @@ definitions:
          - EUR
          country: GB
          debtorAccountRequired: false
+         bankMetaData:
+           debtorAddress: required
+           creditorAddress: required
+           remittanceInformation: optional
+           psuId: notSupported
+           customerIpAddress: notSupported
+           minimumPaymentValue: 0.01
+           maximumPaymentValue: 9999.99           
+         links:
+         -
+          id: 8ww64y0phx
+          resourceType: bankFamily
+          uri: /bankFamilies/8ww64y0phx         
       page:
         pageNumber: 1
         pageSize: 10
         totalElements: 1
         totalPages: 1
       sort: []
+  BankFamilyResponse:
+    type: object
+    required:
+      - id
+      - uri
+      - name
+      - logo
+      - supportedCurrencies
+    properties:
+      id:
+        type: string
+        description: The Banks Family Id, used to group branches belong to the same Bank
+      uri:
+        type: string
+        description: Uri to Bank Family Resource
+      name:
+        type: string
+        description: The Bank Family Name
+      logo:
+        type: string
+        description: The Bank Family Logo http location
+      supportedCurrencies:
+        type: array
+        description: Holds list of payment currencies that the Bank Family can process.
+        items: 
+          type: string
+          description: ISO currency code.
+    title: BankFamilyResponse   
+  BankFamilyResponseEnvelope:
+    type: object
+    required:
+      - data
+      - uri
+    properties:
+      uri:
+        type: string
+        description: Holds queried resource uri.
+      data:
+        type: array
+        description: Bank Family collection
+        items:
+          $ref: '#/definitions/BankFamilyResponse'
+    title: BankFamilyResponseEnvelope
+    example:
+      uri: /bankFamily/
+      data: 
+        id: 8ww64y0phx
+        uri: /bankFamilies/8ww64y0phx
+        name: Nuapay France
+        logo: https://www.nuapay.com/wp-content/uploads/2018/04/nuapay.svg
+        supportedCurrencies:
+        - EUR        
   CreditorAccount:
     type: object
     required:
@@ -1919,7 +2234,29 @@ definitions:
           type: string
       uri:
         type: string
-        description: resource Uri       
+        description: resource Uri
+  PaginatedListBankFamiliesResponseEnvelope:
+    type: object
+    required:
+      - uri
+      - data
+      - page
+      - sort    
+    properties:
+      uri:
+        type: string
+        description: resource Uri
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/BankFamilyResponse'
+      page:
+        $ref: '#/definitions/RestResponsePaginationDetails'
+      sort:
+        type: array
+        items:
+          type: string
+    title: PaginatedListBankFamiliesResponseEnvelope                
   PaymentRefundListResponseEnvelope:
     type: object
     required:
@@ -2580,6 +2917,7 @@ definitions:
           - refunds
           - history
           - audit
+          - bankFamily          
       uri:
         type: string
         description: Resource URI
