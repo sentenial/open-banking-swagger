@@ -248,6 +248,14 @@ paths:
       produces:
         - application/json
       parameters:
+        - name: country
+          in: query
+          required: false
+          type: array
+          description: CountryCode - ISO country code - indicates where bank is domiciled (ISO 3166 Alpha-2)
+          items:
+            type: string
+          collectionFormat: multi
         - name: debtoraccountrequired
           in: query
           required: false
