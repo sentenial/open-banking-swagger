@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   description: Swagger Spec for the Nuapay TPP OpenBanking/PSD2. Provides PISP
     and Banks Endpoints
-  version: '1.14.4'
+  version: '1.16.1'
   title: Nuapay TPP API Specification
   contact:
     name: Nuapay
@@ -62,6 +62,14 @@ paths:
             enum:
               - EUR
               - GBP
+              - PLN
+              - BGN
+              - HRK
+              - CZK
+              - DKK
+              - HUF
+              - RON
+              - SEK
           collectionFormat: multi
       responses:
         200:
@@ -284,6 +292,14 @@ paths:
             enum:
               - EUR
               - GBP
+              - PLN
+              - BGN
+              - HRK
+              - CZK
+              - DKK
+              - HUF
+              - RON
+              - SEK
           collectionFormat: multi
         - name: bankfamilyid
           in: query
@@ -294,7 +310,23 @@ paths:
           in: query
           description: Allows filtering by Banks without an associated Bank Family.
           required: false
-          type: boolean          
+          type: boolean
+        - name: services
+          in: query
+          description: Filter the bank list by service provided returns both AISPs and PISPs, 'AISP' returns only AISPs and 'PISP' returns only PISPs. When not provided returns all banks regardless of service.
+          required: false
+          type: array
+          items:
+            type: string
+            enum:
+              - AISP
+              - PISP
+          collectionFormat: multi                    
+        - name: sepainstantreachability
+          in: query
+          description: Filter the bank list by payment method. When not provided or false, returns the full list of banks. When true, the only banks that supports SEPA Instant Payments are returned.
+          required: false
+          type: boolean
       responses:
         200:
           description: OK
@@ -423,6 +455,7 @@ paths:
           description: Every request will be processed only once per Idempotency-Key.  The Idempotency Key will be valid for 24 hours.
           required: false
           type: string
+          maxLength: 50 
         - name: PSU-ID
           in: header
           description: Client ID of the PSU in the ASPSP client interface.
@@ -433,6 +466,7 @@ paths:
           description: The PSU's IP address if the PSU is currently logged in with the TPP.
           required: false
           type: string
+          maxLength: 50 
       responses:
         201:
           description: Created
@@ -677,6 +711,14 @@ paths:
           enum:
            - EUR
            - GBP
+           - PLN
+           - BGN
+           - HRK
+           - CZK
+           - DKK
+           - HUF
+           - RON
+           - SEK
         - name: pagenumber
           in: query
           description: Page number
@@ -859,7 +901,17 @@ paths:
           x-sentenial:
             enriched: "true"
           type: string
+          maxLength: 50 
       responses:
+        200:
+          description: Ok
+          headers:
+            Location:
+              type: string
+              description: Holds uri of payment that was mapped using provided callback parameters
+            ASPSP-SCA-Redirect-URL:
+              type: string
+              description: Holds url of the ASPSP SCA redirect for pre-authorisation flow.      
         202:
           description: ACCEPTED
           headers:
@@ -1080,7 +1132,7 @@ paths:
     patch:
       tags:
         - PISP Service
-      summary:  Retry Payment 
+      summary: Retry Payment 
       description: Retry Payment
       operationId: setBankIdForPaymentUsingPATCH
       consumes:
@@ -1099,6 +1151,11 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/SetBankPaymentRequest'
+        - name: Customer-IP-Address
+          in: header
+          description: The PSU's IP address if the PSU is currently logged in with the TPP.
+          required: false
+          type: string             
       responses:
         200:
           description: OK
@@ -1397,6 +1454,7 @@ paths:
           description: Every request will be processed only once per x-idempotency-key.  The Idempotency Key will be valid for 24 hours.
           required: false
           type: string
+          maxLength: 50
       responses:
         201:
           description: Created
@@ -1677,7 +1735,7 @@ paths:
               details: null
       security:
         - MerchantOAuth2:
-          - openbanking_pisp
+          - openbanking_refund_read
         - MerchantApiKey: []
   /payments/{paymentId}/refunds/{refundId}:
     get:
@@ -1852,7 +1910,9 @@ definitions:
       - name
       - supportedCurrencies
       - country
+      - countries
       - debtorAccountRequired
+      - services
     properties:
       id:
         type: string
@@ -1874,13 +1934,28 @@ definitions:
           description: ISO currency code. 
       country:
         type: string
-        description: countryCode - ISO country code - indicates where the Bank is located (ISO 3166 Alpha-2)
+        description: The main country the bank operates. ISO country code - indicates where the Bank is located (ISO 3166 Alpha-2)
+      countries:
+        type: array
+        description: Holds the list of countries the bank operates. 
+        items: 
+          type: string
+          description: ISO country code - indicates where the Bank is located (ISO 3166 Alpha-2)
       debtorAccountRequired:
         type: boolean
         description: TRUE if debtorAccount is required by Aspsp.
+      lastUpdateDateTime:
+        type: string
+        format: date-time
+        description: Last date and time when bank's settings were updated.
       bankMetaData:
-        description: Array containing additional bank meta data, includes parameters that are either required, optional or not supported at a specific bank
-        $ref: '#/definitions/BankMetaData'        
+        $ref: '#/definitions/BankMetaData'
+      services:
+        type: array
+        description: AISP if bank provides only AISP services and PISP if bank provides only PISP services.
+        items: 
+          type: string
+          description: Either AISP or PISP.                  
       links:
         type: array
         items:      
@@ -1888,6 +1963,7 @@ definitions:
     title: Bank
   BankMetaData:
     type: object
+    description: Array containing additional bank meta data, includes parameters that are either required, optional or not supported at a specific bank
     properties:
       debtorAddress:
         type: string
@@ -1904,6 +1980,9 @@ definitions:
       customerIpAddress:
         type: string
         description: Indicates if 'Customer IP Address' is required by the bank. Returns either, 'required', 'optional' or 'notSupported'.
+      sepaInstantReachability:
+        type: boolean
+        description: Indicates if SEPA instant payments are supported by the bank.
       minimumPaymentValue:
         type: number
         description: Indicates the minimum payment value accepted by the bank. A value of 0.00 indicates this parameter is not supported by the bank. 
@@ -1944,15 +2023,23 @@ definitions:
          - GBP
          - EUR
          country: GB
+         countries: 
+          - GB
+          - IE
          debtorAccountRequired: false
+         lastUpdateDateTime: "2019-02-28T10:43:07.00Z"
          bankMetaData:
            debtorAddress: required
            creditorAddress: required
            remittanceInformation: optional
            psuId: notSupported
            customerIpAddress: notSupported
+           sepaInstantReachability: true
            minimumPaymentValue: 0.01
-           maximumPaymentValue: 9999.99           
+           maximumPaymentValue: 9999.99
+         services:
+          - AISP
+          - PISP                      
          links:
          -
           id: 8ww64y0phx
@@ -1991,6 +2078,10 @@ definitions:
         items: 
           type: string
           description: ISO currency code.
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/RestResponseLink'
     title: BankFamilyResponse   
   BankFamilyResponseEnvelope:
     type: object
@@ -2339,8 +2430,7 @@ definitions:
         createDateTime:
           type: string
           format: date-time
-          description: 'Date and time when a status has changed. An
-          example is below: 2019-02-28T10:43:07+00:00'
+          description: 'Date and time when a status has changed. An example is below: 2019-02-28T10:43:07+00:00'
   PaymentRequest:
     type: object
     required:
@@ -2361,6 +2451,14 @@ definitions:
         enum:
           - GBP
           - EUR
+          - PLN
+          - BGN
+          - HRK
+          - CZK
+          - DKK
+          - HUF
+          - RON
+          - SEK
       countryCode:
         type: string
         description: countryCode - ISO country code - indicates where customer is
@@ -2427,13 +2525,21 @@ definitions:
         $ref: '#/definitions/Address'
       paymentScheme:
         type: string
-        description: Allows to select payment scheme the payment should be initiated with. Defaults to UK Faster Payments for GBP and SEPA Credit Transfer for EUR.
+        description: Allows to select payment scheme the payment should be initiated with. Defaults to UK Faster Payments for GBP, SEPA Credit Transfer for EUR, ELIXIR for PLN & DOMESTIC_PAYMENT for every other currency.
         enum:
         - UK_FASTER_PAYMENT
         - SEPA_CREDIT_TRANSFER
         - SEPA_INSTANT_CREDIT_TRANSFER
+        - ELIXIR_STANDARD_CREDIT_TRANSFER
+        - ELIXIR_EXPRESS_CREDIT_TRANSFER
+        - DOMESTIC_PAYMENT
       risk:
         $ref: '#/definitions/Risk'
+      merchantDisplayName:
+        type: string
+        description: Sets the Merchant's display name on the payment UI.
+        minLength: 1
+        maxLength: 70
     title: PaymentRequest
     example:
       amount: 99.99
@@ -2485,6 +2591,7 @@ definitions:
       - currency
       - id
       - merchantId
+      - organisationId
       - creationDateTime
       - uri
       - status
@@ -2502,6 +2609,9 @@ definitions:
       merchantId:
         type: string
         description: The ID of the merchant associated to the payment
+      organisationId:
+        type: string
+        description: Id of the Merchant Organisation.
       creationDateTime:
         type: string
         format: date-time
@@ -2538,6 +2648,14 @@ definitions:
         enum:
           - GBP
           - EUR
+          - PLN
+          - BGN
+          - HRK
+          - CZK
+          - DKK
+          - HUF
+          - RON
+          - SEK
       countryCode:
         type: string
         description: countryCode - ISO country code - indicates where customer is domiciled (ISO 3166 Alpha-2)
@@ -2605,13 +2723,21 @@ definitions:
         $ref: '#/definitions/Address'
       paymentScheme:
         type: string
-        description: Allows to select payment scheme the payment should be initiated with. Defaults to UK Faster Payments for GBP and SEPA Credit Transfer for EUR.
+        description: Allows to select payment scheme the payment should be initiated with. Defaults to UK Faster Payments for GBP, SEPA Credit Transfer for EUR, ELIXIR for PLN & DOMESTIC_PAYMENT for every other currency.
         enum:
         - UK_FASTER_PAYMENT
         - SEPA_CREDIT_TRANSFER
         - SEPA_INSTANT_CREDIT_TRANSFER
+        - ELIXIR_STANDARD_CREDIT_TRANSFER
+        - ELIXIR_EXPRESS_CREDIT_TRANSFER
+        - DOMESTIC_PAYMENT
       risk:
         $ref: '#/definitions/Risk'
+      merchantDisplayName:
+        type: string
+        description: Sets the Merchant's display name on the payment UI.
+        minLength: 1
+        maxLength: 70        
       cutOffDateTime:
         type: string
         format: date-time
@@ -2632,6 +2758,11 @@ definitions:
         maximum: 7776000
         exclusiveMinimum: false
         exclusiveMaximum: false
+      psuId:
+        type: string
+        description: Client ID of the PSU in the ASPSP client interface.
+        minLength: 1
+        maxLength: 60        
       multiAuthorisation:
         $ref: '#/definitions/MultiAuthorisation'
       links:
@@ -2708,6 +2839,7 @@ definitions:
        merchantId: gabxwwv2l5
        creationDateTime: "2020-05-01T08:25:29.291Z"
        debtorBankName: Bank Name
+       psuId: 12345678-UE3212       
        multiAuthorisation: 
         status: null
         numberRequired: null
@@ -2841,6 +2973,10 @@ definitions:
         items: 
           type: string
           description: Payment error code(s)
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/RestResponseLink'
     title: PaymentRefundResponse
   RemittanceInformation:
     type: object
@@ -2939,7 +3075,16 @@ definitions:
         description: The bank id returned by List Banks API. This is the bank where PSU holds its account
         minLength: 1
         maxLength: 10
+      psuId:
+        type: string
+        description: Client ID of the PSU in the ASPSP client interface.
+        minLength: 1
+        maxLength: 60        
       debtorAccount:
         $ref: '#/definitions/DebtorAccount'
     example:
       bankId: ybo8zd8j2q
+      psuId: 12345678-UE3212      
+      debtorAccount:
+        identification: GB29NWBK60161331926819
+        schemeName: IBAN
