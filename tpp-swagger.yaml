@@ -396,40 +396,6 @@ paths:
           - openbanking_aisp
           - openbanking_pisp
         - PartnerApiKey: []
-  /banks/{bankId}:
-    get:
-      tags:
-        - Bank Service
-      summary: View Bank
-      description: View Bank Details
-      operationId: getBankUsingGET
-      produces:
-        - application/json
-      parameters:
-        - name: bankId
-          in: path
-          description: Bank id returned by Get Supported Banks endpoint.
-          required: true
-          type: string
-      responses:
-        501:
-          description: Not implemented
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-          examples:
-            application/json:
-              returnCode: null
-              returnDescription: null
-              details: null                            
-      security:
-        - MerchantOAuth2:
-          - openbanking_aisp
-          - openbanking_pisp
-        - MerchantApiKey: []
-        - PartnerOAuth2:
-          - openbanking_aisp
-          - openbanking_pisp
-        - PartnerApiKey: []
   /payments:
     post:
       tags:
@@ -623,7 +589,6 @@ paths:
               details: null
       security:
         - MerchantOAuth2:
-          - openbanking_aisp
           - openbanking_pisp
         - MerchantApiKey: []
     get:
@@ -1848,7 +1813,6 @@ securityDefinitions:
     tokenUrl: https://api.nuapay.com/oauth/token_key
     flow: password
     scopes:
-      openbanking_aisp: Account Information Service Provider access
       openbanking_pisp: Payment Initiation Service Provider access
       openbanking_pisp_read: Read Account and Payment Information  access
       openbanking_refund: Open Banking Refund access
@@ -2224,7 +2188,7 @@ definitions:
         pattern: ^[A-Z]{2,2}$
     title: DeliveryAddress
     description: Information that locates and identifies a specific address, as defined by postal services or in free format text.
-  ErrorDetailsItem:
+  ErrorDetail:
     type: object
     properties:
       code:
@@ -2236,7 +2200,7 @@ definitions:
       field:
         type: string
         description: JSON path to request object property the error is related to
-    title: ErrorDetailsItem
+    title: ErrorDetail
   ErrorResponse:
     type: object
     properties:
@@ -2244,7 +2208,7 @@ definitions:
         type: array
         description: Holds list of input validation errors
         items:
-          $ref: '#/definitions/ErrorDetailsItem'
+          $ref: '#/definitions/ErrorDetail'
       returnCode:
         type: string
         description: Error type code
@@ -2355,7 +2319,7 @@ definitions:
         type: array
         items:
           type: string
-    title: PaginatedListBankFamiliesResponseEnvelope                
+    title: PaginatedListBankFamiliesResponseEnvelope         
   PaymentRefundListResponseEnvelope:
     type: object
     required:
@@ -3028,6 +2992,13 @@ definitions:
         type: string
         description: Specifies the payment context.
         enum:
+          - BillingGoodsAndServicesInAdvance
+          - BillingGoodsAndServicesInArrears
+          - PispPayee
+          - EcommerceMerchantInitiatedPayment
+          - FaceToFacePointOfSale
+          - TransferToSelf
+          - TransferToThirdParty
           - BillPayment
           - EcommerceGoods
           - EcommerceServices
@@ -3045,6 +3016,36 @@ definitions:
         maxLength: 70
       deliveryAddress:
         $ref: '#/definitions/DeliveryAddress'
+      contractPresentIndicator:
+        type: boolean
+        description: Indicates if Payee has a contractual relationship with the PISP.
+      paymentPurposeCode:
+        type: string
+        description: Category code, related to the type of services or goods that corresponds to the underlying purpose of the payment that conforms to Recommended UK Purpose Code in ISO 20022 Payment Messaging List
+        minLength: 3
+        maxLength: 4
+      beneficiaryPrepopulatedIndicator:
+        type: boolean
+        description: Indicates if PISP has immutably prepopulated payment details in for the PSU.
+      beneficiaryAccountType:
+        type: string
+        description: Specifies the extended type of account.
+        enum:
+          - Business
+          - BusinessSavingsAccount
+          - Charity
+          - Collection
+          - Corporate
+          - Ewallet
+          - Government
+          - Investment
+          - ISA
+          - JointPersonal
+          - Pension
+          - Personal
+          - PersonalSavingsAccount
+          - Premier
+          - Wealth
     title: Risk
     description: Risk
   RestResponseLink:
@@ -3055,13 +3056,13 @@ definitions:
         description: 'Encoded Id of linked resource'
       resourceType:
         type: string
-        description: Resource Type
-        enum:
+        description: |-
+          Available link types,
           - settings
           - refunds
           - history
           - audit
-          - bankFamily          
+          - bankFamily
       uri:
         type: string
         description: Resource URI
